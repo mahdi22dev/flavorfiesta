@@ -1,0 +1,118 @@
+{
+  "title": "Lemon Olive Oil Cake",
+  "description": "This lemon olive oil cake recipe is incredibly moist and filled with bright, fruity flavor. Made with simple ingredients, it's an easy, delicious treat!",
+  "content": [
+    {
+      "type": "paragraph",
+      "text": "This lemon olive oil cake recipe is my new favorite spring dessert. It has a moist and tender texture and fruity, citrusy flavor from lemon juice, lemon zest, and plenty of olive oil."
+    },
+    {
+      "type": "image",
+      "id": "image_1"
+    },
+    {
+      "type": "paragraph",
+      "text": "This olive oil cake recipe is easy to make with simple ingredients and equipment. I love to whip it up for an everyday treat to enjoy with coffee or tea."
+    },
+    {
+      "type": "image",
+      "id": "image_2"
+    },
+    {
+      "type": "heading",
+      "text": "Lemon Olive Oil Cake Ingredients"
+    },
+    {
+      "type": "paragraph",
+      "text": "Here’s what you’ll need to make this lemon olive oil cake recipe: olive oil, flour, fresh lemons, baking powder, baking soda, eggs, sugar, milk, vanilla extract, and salt."
+    },
+    {
+      "type": "image",
+      "id": "image_3"
+    },
+    {
+      "type": "heading",
+      "text": "How to Make Olive Oil Cake"
+    },
+    {
+      "type": "paragraph",
+      "text": "First, make the batter. In a medium bowl, whisk together the dry ingredients. In a large bowl, combine the lemon zest and sugar, then add the wet ingredients and whisk."
+    },
+    {
+      "type": "image",
+      "id": "image_4"
+    },
+    {
+      "type": "paragraph",
+      "text": "Add the dry ingredients to the wet ingredients and whisk until just combined."
+    },
+    {
+      "type": "image",
+      "id": "image_5"
+    },
+    {
+      "type": "paragraph",
+      "text": "Transfer the batter to a greased cake pan and bake at 350°F for 40 to 50 minutes."
+    },
+    {
+      "type": "image",
+      "id": "image_6"
+    },
+    {
+      "type": "heading",
+      "text": "Recipe Tips"
+    },
+    {
+      "type": "paragraph",
+      "text": "Tap the pan before baking to release air bubbles. Tent with foil if the cake browns too quickly."
+    },
+    {
+      "type": "heading",
+      "text": "How to Store Olive Oil Cake"
+    },
+    {
+      "type": "paragraph",
+      "text": "Store in an airtight container at room temperature for up to 4 days or refrigerate for up to a week."
+    },
+    {
+      "type": "image",
+      "id": "image_7"
+    }
+  ],
+  "images": {
+    "image_1": "https://www.loveandlemons.com/wp-content/uploads/lemon-olive-oil-cake.jpg",
+    "image_2": "https://www.loveandlemons.com/wp-content/uploads/olive-oil-cake-ingredients.jpg",
+    "image_3": "https://www.loveandlemons.com/wp-content/uploads/whisking-wet-ingredients.jpg",
+    "image_4": "https://www.loveandlemons.com/wp-content/uploads/adding-dry-ingredients.jpg",
+    "image_5": "https://www.loveandlemons.com/wp-content/uploads/mixing-batter.jpg",
+    "image_6": "https://www.loveandlemons.com/wp-content/uploads/pouring-batter-pan.jpg",
+    "image_7": "https://www.loveandlemons.com/wp-content/uploads/lemon-olive-oil-cake-final.jpg"
+  },
+  "recipe": {
+    "prep_time": "15 minutes",
+    "cook_time": "45 minutes",
+    "total_time": "1 hour",
+    "servings": 12,
+    "ingredients": [
+      "2 cups all-purpose flour",
+      "1 tsp baking powder",
+      "1 tsp sea salt",
+      "1/2 tsp baking soda",
+      "Zest of 2 lemons",
+      "3/4 cup cane sugar",
+      "3/4 cup extra-virgin olive oil",
+      "3 large eggs",
+      "1/2 cup fresh lemon juice",
+      "1/2 cup milk",
+      "1 tsp vanilla extract"
+    ],
+    "instructions": [
+      "Preheat oven to 350°F and grease a 9-inch round pan.",
+      "Whisk together dry ingredients.",
+      "Mix lemon zest and sugar, then add wet ingredients.",
+      "Combine wet and dry ingredients.",
+      "Pour batter into pan and bake 40–50 minutes.",
+      "Let cool before serving."
+    ]
+  }
+}

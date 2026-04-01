@@ -12,10 +12,12 @@
 
 # testing
 /coverage
-
+template.excalidraw
+do.txt
 # next.js
 /.next/
 /out/
+test.ts
 
 # production
 /build

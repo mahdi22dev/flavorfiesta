@@ -1,0 +1,94 @@
+[
+  {
+    "id": 1,
+    "title": "Slow-Roasted Garlic Herb Chicken",
+    "image": "https://images.unsplash.com/photo-1598103442097-8b74394b95c6?auto=format&fit=crop&q=80&w=800",
+    "category": "Main Course",
+    "timeToPrepare": "1h 45m",
+    "description": "A classic Sunday roast with crispy skin and tender meat.",
+    "ingredients": [
+      "1 whole chicken (3-4 lbs)",
+      "4 cloves garlic, minced",
+      "2 tbsp fresh rosemary, chopped",
+      "2 tbsp olive oil",
+      "Salt and black pepper to taste"
+    ],
+    "instructions": [
+      "Preheat oven to 375°F (190°C).",
+      "Mix olive oil, garlic, rosemary, salt, and pepper in a bowl.",
+      "Rub the mixture all over the chicken, including under the skin.",
+      "Place chicken in a roasting pan and bake for 1 hour 15 minutes, or until the internal temperature reaches 165°F (74°C).",
+      "Let rest for 10 minutes before carving."
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Wild Mushroom & Truffle Risotto",
+    "image": "https://images.unsplash.com/photo-1476124369491-e7addf5db371?auto=format&fit=crop&q=80&w=800",
+    "category": "Vegetarian",
+    "timeToPrepare": "45m",
+    "description": "Creamy Italian rice dish flavored with earthy mushrooms and truffle oil.",
+    "ingredients": [
+      "1 cup Arborio rice",
+      "8 oz mixed wild mushrooms, sliced",
+      "4 cups vegetable broth, warm",
+      "1/2 cup dry white wine",
+      "1/4 cup parmesan cheese, grated",
+      "1 tsp truffle oil"
+    ],
+    "instructions": [
+      "Sauté mushrooms in olive oil until browned. Set aside.",
+      "In the same pot, toast the rice for 2 minutes.",
+      "Pour in the white wine and stir until absorbed.",
+      "Gradually add warm vegetable broth, one ladle at a time, stirring continuously.",
+      "Once rice is tender and creamy, stir in mushrooms, parmesan, and truffle oil."
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Zesty Lemon Blueberry Tart",
+    "image": "https://images.unsplash.com/photo-1519915028121-7d3463d20b13?auto=format&fit=crop&q=80&w=800",
+    "category": "Dessert",
+    "timeToPrepare": "1h 15m",
+    "description": "A delightful balance of sweet blueberries and tangy lemon custard.",
+    "ingredients": [
+      "1 pre-baked tart shell",
+      "1 cup fresh blueberries",
+      "3 large eggs",
+      "1/2 cup sugar",
+      "1/2 cup fresh lemon juice",
+      "1/4 cup heavy cream"
+    ],
+    "instructions": [
+      "Preheat oven to 350°F (175°C).",
+      "Whisk eggs, sugar, lemon juice, and heavy cream until smooth.",
+      "Pour the mixture into the prepared tart shell.",
+      "Scatter fresh blueberries evenly over the filling.",
+      "Bake for 25-30 minutes until the center is set.",
+      "Cool completely before serving."
+    ]
+  },
+  {
+    "id": 4,
+    "title": "Spicy Honey Garlic Glazed Salmon",
+    "image": "https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&q=80&w=800",
+    "category": "Seafood",
+    "timeToPrepare": "25m",
+    "description": "A sweet and savory salmon fillet with a kick of spice, baked to perfection.",
+    "ingredients": [
+      "4 salmon fillets",
+      "1/4 cup honey",
+      "3 cloves garlic, minced",
+      "1 tbsp soy sauce",
+      "1 tbsp sriracha or chili flakes",
+      "1 tbsp olive oil"
+    ],
+    "instructions": [
+      "Preheat oven to 400°F (200°C).",
+      "In a small bowl, whisk honey, garlic, soy sauce, and sriracha.",
+      "Place salmon fillets on a lined baking sheet and brush with the glaze.",
+      "Bake for 12-15 minutes or until flaky.",
+      "Broil on high for 2 minutes for a caramelized top. Serve warm."
+    ]
+  }
+]
