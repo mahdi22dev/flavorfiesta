@@ -1,12 +1,17 @@
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
-import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { drizzle } from "drizzle-orm/d1";
-import * as schema from "@/db/recipes_shema";
-import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
-import { Clock, Users, Timer, AlertCircle, Lightbulb } from "lucide-react";
+import {
+  Clock,
+  Users,
+  Timer,
+  AlertCircle,
+  Lightbulb,
+  Info,
+  CheckCircle,
+} from "lucide-react";
 import PrintButton from "../../../components/PrintButton";
+import { headers } from "next/headers";
 
 export default async function RecipePost({
   params,
@@ -14,47 +19,37 @@ export default async function RecipePost({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const { env } = getCloudflareContext();
 
-  if (!env || !env.DB_RECIPES) {
+  // Get host for absolute URL requirement in Server Components fetch
+  const headersList = await headers();
+  const host = headersList.get("host");
+  const protocol = host?.includes("localhost") ? "http" : "https";
+
+  const response = await fetch(`${protocol}://${host}/api/recipes/${slug}`, {
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
     return notFound();
   }
 
-  const db = drizzle(env.DB_RECIPES, { schema });
-  
-  const recipeData = (await db
-    .select()
-    .from(schema.recipes)
-    .where(eq(schema.recipes.slug, slug))
-    .get()) as any;
+  const data = await response.json();
 
-  if (!recipeData) {
-    return notFound();
-  }
-
-  let fullRecipe = null;
-  if (env.WEB_SCRAPING_BLOG) {
-    const object = await env.WEB_SCRAPING_BLOG.get(recipeData.s3Key);
-    if (object) {
-      fullRecipe = await object.json() as any;
-    }
-  }
-
-  // Combine DB data with R2/JSON data, ensuring snake_case for UI compatibility
+  // Map the API response to the post object used by the UI
   const post = {
-    title: recipeData.title,
-    description: recipeData.description,
-    cover_image: recipeData.coverImage,
+    title: data.title,
+    description: data.description,
+    cover_image: data.coverImage,
     recipe: {
-      prep_time: recipeData.prepTime,
-      cook_time: recipeData.cookTime,
-      total_time: recipeData.totalTime,
-      servings: recipeData.servings,
-      ingredients: fullRecipe?.recipe?.ingredients || [],
-      instructions: fullRecipe?.recipe?.instructions || [],
+      prep_time: data.prepTime,
+      cook_time: data.cookTime,
+      total_time: data.totalTime,
+      servings: data.servings,
+      ingredients: data.recipe?.ingredients || [],
+      instructions: data.recipe?.instructions || [],
     },
-    content: fullRecipe?.content || [],
-    images: fullRecipe?.images || {},
+    content: data.content || [],
+    images: data.images || {},
   };
 
   return (
@@ -159,32 +154,52 @@ export default async function RecipePost({
               }
             }
             if (block.type === "callout") {
-              const variant = (block as any).variant;
-              const isWarning = variant === "warning";
-              const bgColor = isWarning
-                ? "bg-red-50 border-red-200"
-                : "bg-orange-50 border-orange-200";
-              const titleColor = isWarning ? "text-red-900" : "text-orange-900";
-              const Icon = isWarning ? (
-                <AlertCircle className="w-6 h-6 text-red-600 mr-4 mt-0.5 flex-shrink-0" />
-              ) : (
+              const variant = block.variant || block.variant_type || "tip";
+
+              let bgColor = "bg-orange-50 border-orange-200";
+              let titleColor = "text-orange-900";
+              let Icon = (
                 <Lightbulb className="w-6 h-6 text-orange-600 mr-4 mt-0.5 flex-shrink-0" />
               );
+              let defaultTitle = "Tip";
+
+              if (variant === "warning" || variant === "alert") {
+                bgColor = "bg-red-50 border-red-200";
+                titleColor = "text-red-900";
+                Icon = (
+                  <AlertCircle className="w-6 h-6 text-red-600 mr-4 mt-0.5 flex-shrink-0" />
+                );
+                defaultTitle = "Note";
+              } else if (variant === "info") {
+                bgColor = "bg-blue-50 border-blue-200";
+                titleColor = "text-blue-900";
+                Icon = (
+                  <Info className="w-6 h-6 text-blue-600 mr-4 mt-0.5 flex-shrink-0" />
+                );
+                defaultTitle = "Info";
+              } else if (variant === "success") {
+                bgColor = "bg-emerald-50 border-emerald-200";
+                titleColor = "text-emerald-900";
+                Icon = (
+                  <CheckCircle className="w-6 h-6 text-emerald-600 mr-4 mt-0.5 flex-shrink-0" />
+                );
+                defaultTitle = "Success";
+              }
 
               return (
                 <div
                   key={index}
-                  className={`my-10 p-6 md:p-8 rounded-3xl border ${bgColor} flex items-start shadow-sm`}
+                  className={`not-prose my-10 p-6 md:p-8 rounded-3xl border ${bgColor} flex items-start shadow-sm`}
                 >
                   {Icon}
                   <div>
                     <h4
                       className={`font-bold uppercase tracking-widest text-sm mb-2 ${titleColor}`}
                     >
-                      {(block as any).title}
+                      {block.title || defaultTitle}
                     </h4>
                     <p className="text-stone-800 m-0 leading-relaxed text-lg">
-                      {(block as any).text}
+                      {block.text}
                     </p>
                   </div>
                 </div>
@@ -215,14 +230,16 @@ export default async function RecipePost({
                     Ingredients
                   </h3>
                   <ul className="space-y-5">
-                    {post.recipe.ingredients.map((ingredient: string, i: number) => (
-                      <li key={i} className="flex items-start text-stone-700">
-                        <div className="min-w-2 h-2 rounded-full bg-orange-600 mt-2.5 mr-4 flex-shrink-0 shadow-sm"></div>
-                        <span className="leading-relaxed text-lg">
-                          {ingredient}
-                        </span>
-                      </li>
-                    ))}
+                    {post.recipe.ingredients.map(
+                      (ingredient: string, i: number) => (
+                        <li key={i} className="flex items-start text-stone-700">
+                          <div className="min-w-2 h-2 rounded-full bg-orange-600 mt-2.5 mr-4 flex-shrink-0 shadow-sm"></div>
+                          <span className="leading-relaxed text-lg">
+                            {ingredient}
+                          </span>
+                        </li>
+                      ),
+                    )}
                   </ul>
                 </div>
 
@@ -232,16 +249,18 @@ export default async function RecipePost({
                     Instructions
                   </h3>
                   <ol className="space-y-10">
-                    {post.recipe.instructions.map((instruction: string, i: number) => (
-                      <li key={i} className="flex group">
-                        <span className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-white border border-stone-200 text-stone-400 group-hover:bg-orange-600 group-hover:text-white group-hover:border-orange-600 transition-colors font-bold mr-6 shadow-sm">
-                          {i + 1}
-                        </span>
-                        <span className="text-stone-700 leading-relaxed pt-1.5 text-lg">
-                          {instruction}
-                        </span>
-                      </li>
-                    ))}
+                    {post.recipe.instructions.map(
+                      (instruction: string, i: number) => (
+                        <li key={i} className="flex group">
+                          <span className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-white border border-stone-200 text-stone-400 group-hover:bg-orange-600 group-hover:text-white group-hover:border-orange-600 transition-colors font-bold mr-6 shadow-sm">
+                            {i + 1}
+                          </span>
+                          <span className="text-stone-700 leading-relaxed pt-1.5 text-lg">
+                            {instruction}
+                          </span>
+                        </li>
+                      ),
+                    )}
                   </ol>
                 </div>
               </div>
