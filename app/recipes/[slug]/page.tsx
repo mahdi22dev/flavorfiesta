@@ -49,7 +49,61 @@ export default async function RecipePost({
       instructions: data.recipe?.instructions || [],
     },
     content: data.content || [],
+    callouts: data.callouts || [],
     images: data.images || {},
+  };
+
+  const renderCallout = (block: any, index: string | number) => {
+    const variant = block.variant || block.variant_type || "tip";
+
+    let bgColor = "bg-orange-50 border-orange-200";
+    let titleColor = "text-orange-900";
+    let Icon = (
+      <Lightbulb className="w-6 h-6 text-orange-600 mr-4 mt-0.5 flex-shrink-0" />
+    );
+    let defaultTitle = "Tip";
+
+    if (variant === "warning" || variant === "alert") {
+      bgColor = "bg-red-50 border-red-200";
+      titleColor = "text-red-900";
+      Icon = (
+        <AlertCircle className="w-6 h-6 text-red-600 mr-4 mt-0.5 flex-shrink-0" />
+      );
+      defaultTitle = "Note";
+    } else if (variant === "info") {
+      bgColor = "bg-blue-50 border-blue-200";
+      titleColor = "text-blue-900";
+      Icon = (
+        <Info className="w-6 h-6 text-blue-600 mr-4 mt-0.5 flex-shrink-0" />
+      );
+      defaultTitle = "Info";
+    } else if (variant === "success") {
+      bgColor = "bg-emerald-50 border-emerald-200";
+      titleColor = "text-emerald-900";
+      Icon = (
+        <CheckCircle className="w-6 h-6 text-emerald-600 mr-4 mt-0.5 flex-shrink-0" />
+      );
+      defaultTitle = "Success";
+    }
+
+    return (
+      <div
+        key={index}
+        className={`not-prose my-10 p-6 md:p-8 rounded-3xl border ${bgColor} flex items-start shadow-sm`}
+      >
+        {Icon}
+        <div>
+          <h4
+            className={`font-bold uppercase tracking-widest text-sm mb-2 ${titleColor}`}
+          >
+            {block.title || defaultTitle}
+          </h4>
+          <p className="text-stone-800 m-0 leading-relaxed text-lg">
+            {block.text}
+          </p>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -154,59 +208,17 @@ export default async function RecipePost({
               }
             }
             if (block.type === "callout") {
-              const variant = block.variant || block.variant_type || "tip";
-
-              let bgColor = "bg-orange-50 border-orange-200";
-              let titleColor = "text-orange-900";
-              let Icon = (
-                <Lightbulb className="w-6 h-6 text-orange-600 mr-4 mt-0.5 flex-shrink-0" />
-              );
-              let defaultTitle = "Tip";
-
-              if (variant === "warning" || variant === "alert") {
-                bgColor = "bg-red-50 border-red-200";
-                titleColor = "text-red-900";
-                Icon = (
-                  <AlertCircle className="w-6 h-6 text-red-600 mr-4 mt-0.5 flex-shrink-0" />
-                );
-                defaultTitle = "Note";
-              } else if (variant === "info") {
-                bgColor = "bg-blue-50 border-blue-200";
-                titleColor = "text-blue-900";
-                Icon = (
-                  <Info className="w-6 h-6 text-blue-600 mr-4 mt-0.5 flex-shrink-0" />
-                );
-                defaultTitle = "Info";
-              } else if (variant === "success") {
-                bgColor = "bg-emerald-50 border-emerald-200";
-                titleColor = "text-emerald-900";
-                Icon = (
-                  <CheckCircle className="w-6 h-6 text-emerald-600 mr-4 mt-0.5 flex-shrink-0" />
-                );
-                defaultTitle = "Success";
-              }
-
-              return (
-                <div
-                  key={index}
-                  className={`not-prose my-10 p-6 md:p-8 rounded-3xl border ${bgColor} flex items-start shadow-sm`}
-                >
-                  {Icon}
-                  <div>
-                    <h4
-                      className={`font-bold uppercase tracking-widest text-sm mb-2 ${titleColor}`}
-                    >
-                      {block.title || defaultTitle}
-                    </h4>
-                    <p className="text-stone-800 m-0 leading-relaxed text-lg">
-                      {block.text}
-                    </p>
-                  </div>
-                </div>
-              );
+              return renderCallout(block, index);
             }
             return null;
           })}
+          
+          {/* Render Standalone Callouts if they exist */}
+          {post.callouts && post.callouts.length > 0 && (
+            <div className="mt-12 space-y-4">
+              {post.callouts.map((callout: any, index: number) => renderCallout(callout, `extra-${index}`))}
+            </div>
+          )}
         </article>
 
         {/* Recipe Card / Ingredients & Instructions */}
