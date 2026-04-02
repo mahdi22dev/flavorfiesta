@@ -54,8 +54,20 @@ export async function GET(request: NextRequest) {
     if (whereClause) totalCountQuery.where(whereClause);
     const [{ value: totalCount }] = await totalCountQuery;
 
-    // Get recipes
-    const recipesQuery = db.select().from(schema.recipes);
+    // Get recipes with limited columns for faster listing
+    const recipesQuery = db
+      .select({
+        id: schema.recipes.id,
+        title: schema.recipes.title,
+        slug: schema.recipes.slug,
+        description: schema.recipes.description,
+        coverImage: schema.recipes.coverImage,
+        category: schema.recipes.category,
+        servings: schema.recipes.servings,
+        prepTime: schema.recipes.prepTime,
+        totalTime: schema.recipes.totalTime,
+      })
+      .from(schema.recipes);
 
     if (whereClause) recipesQuery.where(whereClause);
 

@@ -22,7 +22,17 @@ async function getHomePageData() {
 
   // Get Latest Recipes
   const latestRecipes = await db
-    .select()
+    .select({
+      id: schema.recipes.id,
+      title: schema.recipes.title,
+      slug: schema.recipes.slug,
+      description: schema.recipes.description,
+      coverImage: schema.recipes.coverImage,
+      category: schema.recipes.category,
+      servings: schema.recipes.servings,
+      prepTime: schema.recipes.prepTime,
+      totalTime: schema.recipes.totalTime,
+    })
     .from(schema.recipes)
     .orderBy(desc(schema.recipes.createdAt))
     .limit(6);
@@ -53,9 +63,18 @@ async function getHomePageData() {
     icon: categoryIcons[cat.name || ""] || "🍴",
   }));
 
-  // Get a Random Featured Recipe (using order by random)
+  // Get a Random Featured Recipe
   const featuredRecipe = await db
-    .select()
+    .select({
+      id: schema.recipes.id,
+      title: schema.recipes.title,
+      slug: schema.recipes.slug,
+      description: schema.recipes.description,
+      coverImage: schema.recipes.coverImage,
+      category: schema.recipes.category,
+      servings: schema.recipes.servings,
+      totalTime: schema.recipes.totalTime,
+    })
     .from(schema.recipes)
     .orderBy(sql`RANDOM()`)
     .limit(1)
