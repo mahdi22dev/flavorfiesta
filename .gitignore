@@ -16,6 +16,8 @@
 .next/
 /out/
 /build/
+/scripts
+
 
 # Testing & Temporary
 /coverage/

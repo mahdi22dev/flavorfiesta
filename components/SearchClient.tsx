@@ -1,23 +1,88 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Search as SearchIcon, ChevronDown, Clock } from "lucide-react";
+import { Search as SearchIcon, ChevronDown, Clock, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import ResponsiveImage from "./ResponsiveImage";
 
-export default function SearchClient({ initialRecipes }: { initialRecipes: any[] }) {
+interface Recipe {
+  id: number;
+  title: string;
+  slug: string;
+  description: string;
+  category: string;
+  coverImage: string;
+  prepTime: string;
+  cookTime: string;
+  totalTime: string;
+  servings: number;
+}
+
+interface PaginationData {
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export default function SearchClient({ initialRecipes = [] }: { initialRecipes?: any[] }) {
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [pagination, setPagination] = useState<PaginationData>({
+    total: 0,
+    page: 1,
+    limit: 12,
+    totalPages: 0,
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const [category, setCategory] = useState("Categories");
+  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<string[]>([]);
 
-  const filteredRecipes = initialRecipes.filter((r) => {
-    const matchesSearch =
-      r.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = category === "Categories" || r.category === category;
-    return matchesSearch && matchesCategory;
-  });
+  const fetchRecipes = useCallback(async (pageValue: number, searchVal: string, catVal: string) => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({
+        page: pageValue.toString(),
+        limit: "12",
+        search: searchVal,
+        category: catVal === "Categories" ? "" : catVal,
+      });
 
-  const categories = Array.from(new Set(initialRecipes.map((r) => r.category || "General")));
+      const response = await fetch(`/api/recipes?${params.toString()}`);
+      const result = await response.json();
+
+      if (result.data) {
+        setRecipes(result.data);
+        setPagination(result.pagination);
+      }
+    } catch (error) {
+      console.error("Failed to fetch recipes:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Initial fetch and dependency-based fetch
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchRecipes(1, searchQuery, category);
+    }, 300); // Debounce search
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, category, fetchRecipes]);
+
+  // Fetch categories (could be a separate API but we'll infer from results or have a static list)
+  useEffect(() => {
+    // In a real app, this would be a separate API call like /api/categories
+    // For now, we use a sensible default or fetch all once
+    setCategories(["Breakfast", "Lunch", "Dinner", "Dessert", "Vegetarian", "Healthy"]);
+  }, []);
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage >= 1 && newPage <= pagination.totalPages) {
+      fetchRecipes(newPage, searchQuery, category);
+    }
+  };
 
   const formatDuration = (d: string) => d?.replace("PT", "").replace("M", " mins").replace("H", " hours ") || "N/A";
 
@@ -74,17 +139,28 @@ export default function SearchClient({ initialRecipes }: { initialRecipes: any[]
         </div>
       </div>
 
+      {/* Status Info */}
+      <div className="mb-8 flex items-center justify-between">
+        <p className="text-stone-500 font-medium">
+          {loading ? (
+            <span className="flex items-center gap-2"><Loader2 className="animate-spin" size={16} /> Searching...</span>
+          ) : (
+            `Showing ${recipes.length} of ${pagination.total} recipes`
+          )}
+        </p>
+      </div>
+
       {/* Results Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-        {filteredRecipes.map((recipe) => (
+      <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 transition-opacity duration-300 ${loading ? 'opacity-50' : 'opacity-100'}`}>
+        {recipes.map((recipe) => (
           <Link
-            key={recipe.slug}
-            href={`/recipe/${recipe.slug}`}
-            className="group flex flex-col h-full bg-white rounded-[2rem] overflow-hidden border border-stone-100 hover:border-orange-100 hover:shadow-2xl hover:shadow-orange-900/5 transition-all duration-500"
+            key={recipe.id}
+            href={`/recipes/${recipe.slug}`}
+            className="group flex flex-col h-full bg-white rounded-[2rem] overflow-hidden border border-stone-100 hover:border-orange-100 hover:shadow-2xl hover:shadow-orange-900/5 transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
           >
             <div className="relative aspect-[4/3] overflow-hidden">
               <ResponsiveImage
-                src={recipe.image}
+                src={recipe.coverImage || "/placeholder-recipe.jpg"}
                 alt={recipe.title}
                 aspectRatio="aspect-auto h-full w-full"
                 containerClassName="rounded-none border-none shadow-none"
@@ -106,7 +182,7 @@ export default function SearchClient({ initialRecipes }: { initialRecipes: any[]
               <div className="flex items-center justify-between pt-6 border-t border-stone-50 text-stone-400 text-xs font-bold uppercase tracking-widest">
                 <div className="flex items-center gap-2">
                   <Clock size={16} className="text-orange-500" />
-                  <span>{recipe.recipe?.prep_time || "15 mins"}</span>
+                  <span>{recipe.prepTime || "15 mins"}</span>
                 </div>
                 <span className="text-orange-600 group-hover:translate-x-1 transition-transform">
                   View Recipe →
@@ -117,13 +193,66 @@ export default function SearchClient({ initialRecipes }: { initialRecipes: any[]
         ))}
       </div>
 
-      {filteredRecipes.length === 0 && (
+      {/* No Results */}
+      {!loading && recipes.length === 0 && (
         <div className="flex flex-col items-center justify-center py-32 text-center">
           <div className="p-6 bg-stone-50 rounded-full mb-6">
             <SearchIcon size={48} className="text-stone-300" />
           </div>
           <h3 className="text-2xl font-serif font-bold text-stone-900 mb-2">No results found</h3>
           <p className="text-stone-500">Try adjusting your search or category filters.</p>
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      {pagination.totalPages > 1 && (
+        <div className="mt-20 flex justify-center items-center gap-4">
+          <button
+            onClick={() => handlePageChange(pagination.page - 1)}
+            disabled={pagination.page <= 1 || loading}
+            className="p-4 rounded-xl border border-stone-200 text-stone-600 hover:border-orange-500 hover:text-orange-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            aria-label="Previous page"
+          >
+            <ChevronLeft size={24} />
+          </button>
+          
+          <div className="flex items-center gap-2">
+            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => {
+              // Simple pagination logic to show first 3, last 3 and current if many pages
+              if (
+                pagination.totalPages > 7 &&
+                p !== 1 &&
+                p !== pagination.totalPages &&
+                Math.abs(p - pagination.page) > 2
+              ) {
+                if (p === 2 || p === pagination.totalPages - 1) return <span key={p} className="px-2 text-stone-400">...</span>;
+                return null;
+              }
+
+              return (
+                <button
+                  key={p}
+                  onClick={() => handlePageChange(p)}
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold transition-all ${
+                    pagination.page === p
+                      ? "bg-orange-600 text-white shadow-lg shadow-orange-600/20"
+                      : "text-stone-500 hover:bg-stone-50"
+                  }`}
+                >
+                  {p}
+                </button>
+              );
+            })}
+          </div>
+
+          <button
+            onClick={() => handlePageChange(pagination.page + 1)}
+            disabled={pagination.page >= pagination.totalPages || loading}
+            className="p-4 rounded-xl border border-stone-200 text-stone-600 hover:border-orange-500 hover:text-orange-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            aria-label="Next page"
+          >
+            <ChevronRight size={24} />
+          </button>
         </div>
       )}
     </div>
