@@ -3,34 +3,11 @@ import Hero from "../components/Hero";
 import FeaturedRecipes from "../components/FeaturedRecipes";
 import Categories from "../components/Categories";
 import Footer from "../components/Footer";
-import fs from "fs/promises";
-import path from "path";
 
 async function getLatestRecipes() {
-  const articlesDir = path.join(process.cwd(), "articles");
-  let files;
-  try {
-    files = await fs.readdir(articlesDir);
-  } catch (error) {
-    return [];
-  }
-
-  const recipes = [];
-  for (const file of files.slice(0, 3)) { // Just grab first 3 for featured
-    if (file.endsWith(".json")) {
-      try {
-        const fileContent = await fs.readFile(path.join(articlesDir, file), "utf8");
-        const data = JSON.parse(fileContent);
-        recipes.push({
-          ...data,
-          slug: file.replace(".json", ""),
-          image: data.images?.image_1 || data.images?.image_7 || "",
-          time: data.recipe?.total_time?.replace("PT", "").replace("M", "m").replace("H", "h ") || "N/A"
-        });
-      } catch (e) {}
-    }
-  }
-  return recipes;
+  // Cloudflare Pages/Workers environment does not support Node.js 'fs' module.
+  // Real recipe data should be fetched from D1 database or R2 bucket defined in wrangler.jsonc.
+  return [];
 }
 
 export default async function Home() {
