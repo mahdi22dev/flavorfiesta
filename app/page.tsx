@@ -4,6 +4,9 @@ import FeaturedRecipes from "../components/FeaturedRecipes";
 import Categories from "../components/Categories";
 import Footer from "../components/Footer";
 
+export const runtime = "edge";
+export const dynamic = "force-dynamic";
+
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { drizzle } from "drizzle-orm/d1";
 import * as schema from "@/db/recipes_shema";

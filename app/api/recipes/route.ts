@@ -4,6 +4,8 @@ import { drizzle } from "drizzle-orm/d1";
 import * as schema from "@/db/recipes_shema";
 import { count, like, or } from "drizzle-orm";
 
+export const runtime = "edge";
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
