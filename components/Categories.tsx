@@ -1,13 +1,16 @@
-const CATEGORIES = [
-  { name: "Breakfast", icon: "🍳", count: 24 },
-  { name: "Lunch", icon: "🥗", count: 42 },
-  { name: "Dinner", icon: "🍝", count: 56 },
-  { name: "Desserts", icon: "🍰", count: 31 },
-  { name: "Drinks", icon: "🍹", count: 18 },
-  { name: "Vegan", icon: "🌿", count: 29 },
-];
+import Link from "next/link";
 
-export default function Categories() {
+interface Category {
+  name: string;
+  icon: string;
+  count: number;
+}
+
+interface CategoriesProps {
+  categories: Category[];
+}
+
+export default function Categories({ categories }: CategoriesProps) {
   return (
     <section id="categories" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -20,9 +23,10 @@ export default function Categories() {
           </p>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-          {CATEGORIES.map((cat, index) => (
-            <button
+          {categories.map((cat, index) => (
+            <Link
               key={index}
+              href={`/recipes?category=${cat.name}`}
               className="group p-8 bg-stone-50 rounded-2xl border border-stone-100 hover:bg-orange-600 hover:border-orange-600 transition-all duration-300 text-center"
             >
               <span className="text-4xl mb-4 block group-hover:scale-125 transition-transform">
@@ -34,7 +38,7 @@ export default function Categories() {
               <p className="text-xs text-stone-500 group-hover:text-orange-100 transition-colors uppercase tracking-widest">
                 {cat.count} Recipes
               </p>
-            </button>
+            </Link>
           ))}
         </div>
       </div>

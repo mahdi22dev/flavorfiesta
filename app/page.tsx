@@ -4,20 +4,73 @@ import FeaturedRecipes from "../components/FeaturedRecipes";
 import Categories from "../components/Categories";
 import Footer from "../components/Footer";
 
-async function getLatestRecipes() {
-  // Cloudflare Pages/Workers environment does not support Node.js 'fs' module.
-  // Real recipe data should be fetched from D1 database or R2 bucket defined in wrangler.jsonc.
-  return [];
+import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { drizzle } from "drizzle-orm/d1";
+import * as schema from "@/db/recipes_shema";
+import { count, desc, eq, sql } from "drizzle-orm";
+
+async function getHomePageData() {
+  const { env } = getCloudflareContext();
+  
+  if (!env || !env.DB_RECIPES) {
+    return { latestRecipes: [], categories: [], featuredRecipe: null };
+  }
+
+  const db = drizzle(env.DB_RECIPES, { schema });
+
+  // Get Latest Recipes
+  const latestRecipes = await db
+    .select()
+    .from(schema.recipes)
+    .orderBy(desc(schema.recipes.createdAt))
+    .limit(6);
+
+  // Get Categories with Counts
+  const categoriesRaw = await db
+    .select({ 
+      name: schema.recipes.category, 
+      count: count() 
+    })
+    .from(schema.recipes)
+    .groupBy(schema.recipes.category);
+
+  const categoryIcons: Record<string, string> = {
+    "Breakfast": "🍳",
+    "Lunch": "🥗",
+    "Dinner": "🍝",
+    "Dessert": "🍰",
+    "Drinks": "🍹",
+    "Vegan": "🌿",
+    "Seafood": "🐟",
+    "Main Course": "🍗",
+  };
+
+  const categories = categoriesRaw.map(cat => ({
+    name: cat.name || "General",
+    count: cat.count,
+    icon: categoryIcons[cat.name || ""] || "🍴"
+  }));
+
+  // Get a Random Featured Recipe (using order by random)
+  const featuredRecipe = await db
+    .select()
+    .from(schema.recipes)
+    .orderBy(sql`RANDOM()`)
+    .limit(1)
+    .then(rows => rows[0] || null);
+
+  return { latestRecipes, categories, featuredRecipe };
 }
 
 export default async function Home() {
-  const latestRecipes = await getLatestRecipes();
+  const { latestRecipes, categories, featuredRecipe } = await getHomePageData();
+  
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow">
-        <Hero />
-        <Categories />
+        <Hero recipe={featuredRecipe} />
+        <Categories categories={categories} />
         <FeaturedRecipes recipes={latestRecipes} />
 
         {/* Newsletter Section */}
