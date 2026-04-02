@@ -1,13 +1,13 @@
 "use client";
 import { Clock } from "lucide-react";
 import Link from "next/link";
+import ResponsiveImage from "./ResponsiveImage";
 
 interface RecipeCardProps {
   title: string;
   image: string;
   category: string;
   time: string;
-  key?: any;
 }
 
 export default function RecipeCard({
@@ -21,13 +21,13 @@ export default function RecipeCard({
   return (
     <Link href={`/recipe/${slug}`} className="group block bg-white rounded-2xl overflow-hidden border border-stone-200 hover:shadow-xl transition-all duration-300">
       <div className="relative h-64 overflow-hidden">
-        <img
-          src={image}
-          alt={title}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-          referrerPolicy="no-referrer"
+        <ResponsiveImage 
+          src={image} 
+          alt={title} 
+          aspectRatio="aspect-auto h-full w-full"
+          containerClassName="rounded-none border-none shadow-none"
         />
-        <div className="absolute top-4 left-4">
+        <div className="absolute top-4 left-4 z-10">
           <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-widest bg-white/90 backdrop-blur-sm text-stone-900 rounded-full">
             {category}
           </span>

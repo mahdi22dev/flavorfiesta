@@ -4,15 +4,21 @@
   "content": [
     {
       "type": "paragraph",
-      "text": "This lemon olive oil cake recipe is my new favorite spring dessert. It has a moist and tender texture and fruity, citrusy flavor from lemon juice, lemon zest, and plenty of olive oil."
+      "text": "Okay, seriously, this lemon olive oil cake is my go-to spring dessert now. It's unbelievably moist and tender, with that perfect zing from lemon juice and zest. Plus, the olive oil just makes it *amazing*."
     },
     {
       "type": "image",
       "id": "image_1"
     },
     {
+      "type": "callout",
+      "variant": "tip",
+      "title": "Baking Tip",
+      "text": "Room temperature eggs are your friend! They help create a smoother, lighter batter – trust me."
+    },
+    {
       "type": "paragraph",
-      "text": "This olive oil cake recipe is easy to make with simple ingredients and equipment. I love to whip it up for an everyday treat to enjoy with coffee or tea."
+      "text": "Honestly, this recipe is a breeze. Super simple ingredients and you don't need a ton of fancy equipment. It's perfect for when you want something special but don't want to spend all day in the kitchen. Great with coffee or tea!"
     },
     {
       "type": "image",
@@ -24,7 +30,13 @@
     },
     {
       "type": "paragraph",
-      "text": "Here’s what you’ll need to make this lemon olive oil cake recipe: olive oil, flour, fresh lemons, baking powder, baking soda, eggs, sugar, milk, vanilla extract, and salt."
+      "text": "Here's what you'll grab: olive oil, flour, fresh lemons (the star!), baking powder, baking soda, eggs, sugar, milk, vanilla, and a pinch of salt."
+    },
+    {
+      "type": "callout",
+      "variant": "tip",
+      "title": "Ingredient Tip",
+      "text": "Sift that flour and baking powder together! It prevents lumps and keeps the cake nice and light."
     },
     {
       "type": "image",
@@ -36,7 +48,7 @@
     },
     {
       "type": "paragraph",
-      "text": "First, make the batter. In a medium bowl, whisk together the dry ingredients. In a large bowl, combine the lemon zest and sugar, then add the wet ingredients and whisk."
+      "text": "First things first: the batter. Whisk together all the dry stuff in one bowl. Then, in a bigger bowl, combine the lemon zest and sugar, then add the wet ingredients and whisk it up."
     },
     {
       "type": "image",
@@ -44,27 +56,41 @@
     },
     {
       "type": "paragraph",
-      "text": "Add the dry ingredients to the wet ingredients and whisk until just combined."
+      "text": "Gently add the dry ingredients to the wet and whisk until *just* combined."
     },
     {
       "type": "image",
       "id": "image_5"
     },
     {
+      "type": "callout",
+      "variant": "tip",
+      "title": "Mixing Tip",
+      "text": "Don't overmix! Seriously, stop when it's just combined. Overmixing = a dense cake, and nobody wants that."
+    },
+    {
       "type": "paragraph",
-      "text": "Transfer the batter to a greased cake pan and bake at 350°F for 40 to 50 minutes."
+      "text": "Pour the batter into a greased cake pan and bake at 350°F for 40-50 minutes."
     },
     {
       "type": "image",
       "id": "image_6"
     },
     {
+      "type": "callout",
+      "variant": "tip",
+      "title": "Baking Tip",
+      "text": "Give the pan a little tap on the counter before baking to get rid of any air bubbles."
+    },
+    {
       "type": "heading",
       "text": "Recipe Tips"
     },
     {
-      "type": "paragraph",
-      "text": "Tap the pan before baking to release air bubbles. Tent with foil if the cake browns too quickly."
+      "type": "callout",
+      "variant": "tip",
+      "title": "Quick Tip",
+      "text": "If the top starts to get too brown, tent it with foil. No burnt cake allowed!"
     },
     {
       "type": "heading",
@@ -72,7 +98,13 @@
     },
     {
       "type": "paragraph",
-      "text": "Store in an airtight container at room temperature for up to 4 days or refrigerate for up to a week."
+      "text": "Keep it in an airtight container at room temperature for up to 4 days, or in the fridge for up to a week."
+    },
+    {
+      "type": "callout",
+      "variant": "tip",
+      "title": "Storage Tip",
+      "text": "Let refrigerated cake come to room temperature before serving – it'll taste so much better!"
     },
     {
       "type": "image",

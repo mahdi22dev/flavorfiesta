@@ -18,6 +18,7 @@ do.txt
 /.next/
 /out/
 test.ts
+/articles
 
 # production
 /build
