@@ -1,6 +1,10 @@
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
-import post from "../../../post.json";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { drizzle } from "drizzle-orm/d1";
+import * as schema from "@/db/recipes_shema";
+import { eq } from "drizzle-orm";
+import { notFound } from "next/navigation";
 import { Clock, Users, Timer, AlertCircle, Lightbulb } from "lucide-react";
 import PrintButton from "../../../components/PrintButton";
 
@@ -9,8 +13,49 @@ export default async function RecipePost({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  // We can await params if needed for future dynamic routing:
-  // const { slug } = await params;
+  const { slug } = await params;
+  const { env } = getCloudflareContext();
+
+  if (!env || !env.DB_RECIPES) {
+    return notFound();
+  }
+
+  const db = drizzle(env.DB_RECIPES, { schema });
+  
+  const recipeData = (await db
+    .select()
+    .from(schema.recipes)
+    .where(eq(schema.recipes.slug, slug))
+    .get()) as any;
+
+  if (!recipeData) {
+    return notFound();
+  }
+
+  let fullRecipe = null;
+  if (env.WEB_SCRAPING_BLOG) {
+    const object = await env.WEB_SCRAPING_BLOG.get(recipeData.s3Key);
+    if (object) {
+      fullRecipe = await object.json() as any;
+    }
+  }
+
+  // Combine DB data with R2/JSON data, ensuring snake_case for UI compatibility
+  const post = {
+    title: recipeData.title,
+    description: recipeData.description,
+    cover_image: recipeData.coverImage,
+    recipe: {
+      prep_time: recipeData.prepTime,
+      cook_time: recipeData.cookTime,
+      total_time: recipeData.totalTime,
+      servings: recipeData.servings,
+      ingredients: fullRecipe?.recipe?.ingredients || [],
+      instructions: fullRecipe?.recipe?.instructions || [],
+    },
+    content: fullRecipe?.content || [],
+    images: fullRecipe?.images || {},
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -76,7 +121,7 @@ export default async function RecipePost({
 
         {/* Blog Content */}
         <article className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 prose prose-stone lg:prose-xl prose-img:rounded-3xl prose-img:shadow-xl prose-headings:font-serif prose-headings:font-bold prose-headings:text-stone-900 text-stone-700">
-          {post.content.map((block, index) => {
+          {post.content.map((block: any, index: number) => {
             if (block.type === "paragraph") {
               return (
                 <p key={index} className="leading-relaxed mb-6 text-xl">
@@ -170,7 +215,7 @@ export default async function RecipePost({
                     Ingredients
                   </h3>
                   <ul className="space-y-5">
-                    {post.recipe.ingredients.map((ingredient, i) => (
+                    {post.recipe.ingredients.map((ingredient: string, i: number) => (
                       <li key={i} className="flex items-start text-stone-700">
                         <div className="min-w-2 h-2 rounded-full bg-orange-600 mt-2.5 mr-4 flex-shrink-0 shadow-sm"></div>
                         <span className="leading-relaxed text-lg">
@@ -187,7 +232,7 @@ export default async function RecipePost({
                     Instructions
                   </h3>
                   <ol className="space-y-10">
-                    {post.recipe.instructions.map((instruction, i) => (
+                    {post.recipe.instructions.map((instruction: string, i: number) => (
                       <li key={i} className="flex group">
                         <span className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-white border border-stone-200 text-stone-400 group-hover:bg-orange-600 group-hover:text-white group-hover:border-orange-600 transition-colors font-bold mr-6 shadow-sm">
                           {i + 1}
