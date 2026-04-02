@@ -4,7 +4,6 @@ import FeaturedRecipes from "../components/FeaturedRecipes";
 import Categories from "../components/Categories";
 import Footer from "../components/Footer";
 
-export const runtime = "edge";
 export const dynamic = "force-dynamic";
 
 import { getCloudflareContext } from "@opennextjs/cloudflare";
@@ -14,7 +13,7 @@ import { count, desc, eq, sql } from "drizzle-orm";
 
 async function getHomePageData() {
   const { env } = getCloudflareContext();
-  
+
   if (!env || !env.DB_RECIPES) {
     return { latestRecipes: [], categories: [], featuredRecipe: null };
   }
@@ -30,28 +29,28 @@ async function getHomePageData() {
 
   // Get Categories with Counts
   const categoriesRaw = await db
-    .select({ 
-      name: schema.recipes.category, 
-      count: count() 
+    .select({
+      name: schema.recipes.category,
+      count: count(),
     })
     .from(schema.recipes)
     .groupBy(schema.recipes.category);
 
   const categoryIcons: Record<string, string> = {
-    "Breakfast": "🍳",
-    "Lunch": "🥗",
-    "Dinner": "🍝",
-    "Dessert": "🍰",
-    "Drinks": "🍹",
-    "Vegan": "🌿",
-    "Seafood": "🐟",
+    Breakfast: "🍳",
+    Lunch: "🥗",
+    Dinner: "🍝",
+    Dessert: "🍰",
+    Drinks: "🍹",
+    Vegan: "🌿",
+    Seafood: "🐟",
     "Main Course": "🍗",
   };
 
-  const categories = categoriesRaw.map(cat => ({
+  const categories = categoriesRaw.map((cat) => ({
     name: cat.name || "General",
     count: cat.count,
-    icon: categoryIcons[cat.name || ""] || "🍴"
+    icon: categoryIcons[cat.name || ""] || "🍴",
   }));
 
   // Get a Random Featured Recipe (using order by random)
@@ -60,14 +59,14 @@ async function getHomePageData() {
     .from(schema.recipes)
     .orderBy(sql`RANDOM()`)
     .limit(1)
-    .then(rows => rows[0] || null);
+    .then((rows) => rows[0] || null);
 
   return { latestRecipes, categories, featuredRecipe };
 }
 
 export default async function Home() {
   const { latestRecipes, categories, featuredRecipe } = await getHomePageData();
-  
+
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
