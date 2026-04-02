@@ -24,7 +24,7 @@ do.txt
 test.ts
 test.js
 test.tsbuildinfo
-
+test.js
 # Data (if these are generated or temporary)
 recipes.json
 post.json
