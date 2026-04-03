@@ -37,6 +37,7 @@
       "database_name": "posts",
       "database_id": "24d9dfb8-bdca-42e2-916e-da879e7106e3",
       "migrations_dir": "drizzle/migrations",
+      "remote": true,
     },
   ],
 

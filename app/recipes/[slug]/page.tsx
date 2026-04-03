@@ -1,8 +1,17 @@
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 import { notFound } from "next/navigation";
-import { Clock, Users, Timer, AlertCircle, Lightbulb, Info, CheckCircle, CheckSquare } from "lucide-react";
+import {
+  Clock,
+  Users,
+  Timer,
+  AlertCircle,
+  Lightbulb,
+  Info,
+  CheckCircle,
+} from "lucide-react";
 import PrintButton from "../../../components/PrintButton";
+import IngredientChecklist from "../../../components/IngredientChecklist";
 import { headers } from "next/headers";
 
 export default async function RecipePost({
@@ -163,56 +172,59 @@ export default async function RecipePost({
 
         {/* Ingredients Quick Access Section (Moved to the top) */}
         <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 mb-8">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 bg-white rounded-[2.5rem] p-8 md:p-12 border border-stone-100 shadow-xl shadow-stone-200/50 relative overflow-hidden ring-1 ring-stone-900/5">
-                {/* Background decorative elements */}
-                <div className="absolute top-0 right-0 w-80 h-80 bg-orange-100/50 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 -z-0"></div>
-                <div className="absolute bottom-0 left-0 w-40 h-40 bg-stone-100 rounded-full blur-[60px] translate-y-1/4 -translate-x-1/4 -z-0"></div>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 bg-white rounded-[2.5rem] p-8 md:p-12 border border-stone-100 shadow-xl shadow-stone-200/50 relative overflow-hidden ring-1 ring-stone-900/5">
+            {/* Background decorative elements */}
+            <div className="absolute top-0 right-0 w-80 h-80 bg-orange-100/50 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 -z-0"></div>
+            <div className="absolute bottom-0 left-0 w-40 h-40 bg-stone-100 rounded-full blur-[60px] translate-y-1/4 -translate-x-1/4 -z-0"></div>
 
-                <div className="lg:col-span-1 space-y-10 relative z-10 border-b lg:border-b-0 lg:border-r border-stone-100 pb-10 lg:pb-0">
+            <div className="lg:col-span-1 space-y-10 relative z-10 border-b lg:border-b-0 lg:border-r border-stone-100 pb-10 lg:pb-0">
+              <div>
+                <h3 className="text-stone-400 font-bold uppercase tracking-[0.2em] text-[10px] mb-6">
+                  Recipe Stats
+                </h3>
+                <div className="space-y-6">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600">
+                      <Timer size={20} />
+                    </div>
                     <div>
-                        <h3 className="text-stone-400 font-bold uppercase tracking-[0.2em] text-[10px] mb-6">Recipe Stats</h3>
-                        <div className="space-y-6">
-                            <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600">
-                                    <Timer size={20} />
-                                </div>
-                                <div>
-                                    <p className="text-[10px] uppercase tracking-widest text-stone-400 font-bold leading-none mb-1">Total Time</p>
-                                    <p className="font-bold text-stone-900">{post.recipe.total_time || "45 mins"}</p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600">
-                                    <Users size={20} />
-                                </div>
-                                <div>
-                                    <p className="text-[10px] uppercase tracking-widest text-stone-400 font-bold leading-none mb-1">Servings</p>
-                                    <p className="font-bold text-stone-900">{post.recipe.servings} people</p>
-                                </div>
-                            </div>
-                        </div>
+                      <p className="text-[10px] uppercase tracking-widest text-stone-400 font-bold leading-none mb-1">
+                        Total Time
+                      </p>
+                      <p className="font-bold text-stone-900">
+                        {post.recipe.total_time || "45 mins"}
+                      </p>
                     </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600">
+                      <Users size={20} />
+                    </div>
+                    <div>
+                      <p className="text-[10px] uppercase tracking-widest text-stone-400 font-bold leading-none mb-1">
+                        Servings
+                      </p>
+                      <p className="font-bold text-stone-900">
+                        {post.recipe.servings} people
+                      </p>
+                    </div>
+                  </div>
                 </div>
-
-                <div className="lg:col-span-3 relative z-10">
-                    <div className="flex items-center justify-between mb-8">
-                        <h2 className="text-3xl font-serif font-bold text-stone-900">Ingredients</h2>
-                        <span className="px-4 py-1.5 bg-stone-900 text-white rounded-full text-[10px] font-bold uppercase tracking-widest">Ready to roll</span>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-5">
-                       {post.recipe.ingredients.map((ingredient: string, i: number) => (
-                          <div key={i} className="flex items-start gap-4 group cursor-pointer hover:translate-x-1 transition-transform">
-                             <div className="mt-1 flex-shrink-0 w-5 h-5 rounded border-2 border-stone-200 group-hover:border-orange-500 group-hover:bg-orange-50 transition-colors flex items-center justify-center">
-                                <div className="w-2 h-2 bg-orange-500 rounded-sm opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                             </div>
-                             <span className="text-stone-700 leading-relaxed group-hover:text-stone-900 transition-colors font-medium">
-                                {ingredient}
-                             </span>
-                          </div>
-                        ))}
-                    </div>
-                </div>
+              </div>
             </div>
+
+            <div className="lg:col-span-3 relative z-10">
+              <div className="flex items-center justify-between mb-8">
+                <h2 className="text-3xl font-serif font-bold text-stone-900">
+                  Ingredients
+                </h2>
+                <span className="px-4 py-1.5 bg-stone-900 text-white rounded-full text-[10px] font-bold uppercase tracking-widest">
+                  Ready to roll
+                </span>
+              </div>
+              <IngredientChecklist ingredients={post.recipe.ingredients} />
+            </div>
+          </div>
         </section>
 
         {/* Blog Content */}
@@ -259,17 +271,19 @@ export default async function RecipePost({
             }
             return null;
           })}
-          
+
           {/* Render Standalone Callouts if they exist */}
           {post.callouts && post.callouts.length > 0 && (
             <div className="mt-12 space-y-4">
-              {post.callouts.map((callout: any, index: number) => renderCallout(callout, `extra-${index}`))}
+              {post.callouts.map((callout: any, index: number) =>
+                renderCallout(callout, `extra-${index}`),
+              )}
             </div>
           )}
         </article>
 
         {/* Instructions Card */}
-        <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-32 mt-12">
+        <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-32 mt-6">
           <div className="bg-stone-50 rounded-[2.5rem] p-8 md:p-14 border border-stone-200 shadow-sm relative overflow-hidden">
             {/* Decorative background element */}
             <div className="absolute top-0 right-0 w-64 h-64 bg-orange-100 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/3 text-stone-900"></div>
@@ -279,29 +293,29 @@ export default async function RecipePost({
                 <h2 className="text-4xl font-serif font-bold text-stone-900">
                   Instructions
                 </h2>
-                <PrintButton />
+                <PrintButton slug={slug} />
               </div>
 
               <div className="max-w-4xl">
-                  <ol className="space-y-12">
-                    {post.recipe.instructions.map(
-                      (instruction: string, i: number) => (
-                        <li key={i} className="flex group">
-                          <div className="flex-shrink-0 mr-8">
-                             <div className="relative">
-                                <span className="flex items-center justify-center w-12 h-12 rounded-2xl bg-white border border-stone-200 text-stone-400 group-hover:bg-orange-600 group-hover:text-white group-hover:border-orange-600 transition-all duration-300 font-bold text-lg shadow-sm">
-                                  {i + 1}
-                                </span>
-                                <div className="absolute top-1/2 left-full w-4 h-px bg-stone-200 ml-2"></div>
-                             </div>
+                <ol className="space-y-12">
+                  {post.recipe.instructions.map(
+                    (instruction: string, i: number) => (
+                      <li key={i} className="flex group">
+                        <div className="flex-shrink-0 mr-8">
+                          <div className="relative">
+                            <span className="flex items-center justify-center w-12 h-12 rounded-2xl bg-white border border-stone-200 text-stone-400 group-hover:bg-orange-600 group-hover:text-white group-hover:border-orange-600 transition-all duration-300 font-bold text-lg shadow-sm">
+                              {i + 1}
+                            </span>
+                            <div className="absolute top-1/2 left-full w-4 h-px bg-stone-200 ml-2"></div>
                           </div>
-                          <span className="text-stone-700 leading-relaxed pt-2.5 text-xl font-medium">
-                            {instruction}
-                          </span>
-                        </li>
-                      ),
-                    )}
-                  </ol>
+                        </div>
+                        <span className="text-stone-700 leading-relaxed pt-2.5 text-xl font-medium">
+                          {instruction}
+                        </span>
+                      </li>
+                    ),
+                  )}
+                </ol>
               </div>
             </div>
           </div>

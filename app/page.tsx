@@ -6,81 +6,63 @@ import Footer from "../components/Footer";
 
 export const dynamic = "force-dynamic";
 
-import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { drizzle } from "drizzle-orm/d1";
-import * as schema from "@/db/recipes_shema";
-import { count, desc, eq, sql } from "drizzle-orm";
+import { queryD1 } from "@/lib/db";
 
 async function getHomePageData() {
-  const { env } = getCloudflareContext();
+  try {
+    // Get Latest Recipes
+    const latestRecipes = await queryD1<{
+      id: number; title: string; slug: string; description: string;
+      cover_image: string; category: string; servings: number;
+      prep_time: string; total_time: string;
+    }>(
+      `SELECT id, title, slug, description, cover_image, category, servings, prep_time, total_time
+       FROM recipes ORDER BY created_at DESC LIMIT 6`
+    );
 
-  if (!env || !env.DB_RECIPES) {
+    // Get Categories with Counts
+    const categoriesRaw = await queryD1<{ name: string; count: number }>(
+      `SELECT category as name, COUNT(*) as count FROM recipes GROUP BY category`
+    );
+
+    const categoryIcons: Record<string, string> = {
+      Breakfast: "🍳", Lunch: "🥗", Dinner: "🍝", Dessert: "🍰",
+      Drinks: "🍹", Vegan: "🌿", Seafood: "🐟", "Main Course": "🍗",
+    };
+
+    const categories = categoriesRaw.map((cat) => ({
+      name: cat.name || "General",
+      count: cat.count,
+      icon: categoryIcons[cat.name || ""] || "🍴",
+    }));
+
+    // Get a Random Featured Recipe
+    const featuredRows = await queryD1<{
+      id: number; title: string; slug: string; description: string;
+      cover_image: string; category: string; servings: number; total_time: string;
+    }>(
+      `SELECT id, title, slug, description, cover_image, category, servings, total_time
+       FROM recipes ORDER BY RANDOM() LIMIT 1`
+    );
+    const featuredRecipe = featuredRows[0] || null;
+
+    // Normalize snake_case from DB to camelCase for UI
+    const normalize = (r: any) => ({
+      ...r,
+      coverImage: r.cover_image,
+      prepTime: r.prep_time,
+      totalTime: r.total_time,
+    });
+
+    return {
+      latestRecipes: latestRecipes.map(normalize),
+      categories,
+      featuredRecipe: featuredRecipe ? normalize(featuredRecipe) : null,
+    };
+  } catch (err) {
+    console.error("getHomePageData error:", err);
     return { latestRecipes: [], categories: [], featuredRecipe: null };
   }
-
-  const db = drizzle(env.DB_RECIPES, { schema });
-
-  // Get Latest Recipes
-  const latestRecipes = await db
-    .select({
-      id: schema.recipes.id,
-      title: schema.recipes.title,
-      slug: schema.recipes.slug,
-      description: schema.recipes.description,
-      coverImage: schema.recipes.coverImage,
-      category: schema.recipes.category,
-      servings: schema.recipes.servings,
-      prepTime: schema.recipes.prepTime,
-      totalTime: schema.recipes.totalTime,
-    })
-    .from(schema.recipes)
-    .orderBy(desc(schema.recipes.createdAt))
-    .limit(6);
-
-  // Get Categories with Counts
-  const categoriesRaw = await db
-    .select({
-      name: schema.recipes.category,
-      count: count(),
-    })
-    .from(schema.recipes)
-    .groupBy(schema.recipes.category);
-
-  const categoryIcons: Record<string, string> = {
-    Breakfast: "🍳",
-    Lunch: "🥗",
-    Dinner: "🍝",
-    Dessert: "🍰",
-    Drinks: "🍹",
-    Vegan: "🌿",
-    Seafood: "🐟",
-    "Main Course": "🍗",
-  };
-
-  const categories = categoriesRaw.map((cat) => ({
-    name: cat.name || "General",
-    count: cat.count,
-    icon: categoryIcons[cat.name || ""] || "🍴",
-  }));
-
-  // Get a Random Featured Recipe
-  const featuredRecipe = await db
-    .select({
-      id: schema.recipes.id,
-      title: schema.recipes.title,
-      slug: schema.recipes.slug,
-      description: schema.recipes.description,
-      coverImage: schema.recipes.coverImage,
-      category: schema.recipes.category,
-      servings: schema.recipes.servings,
-      totalTime: schema.recipes.totalTime,
-    })
-    .from(schema.recipes)
-    .orderBy(sql`RANDOM()`)
-    .limit(1)
-    .then((rows) => rows[0] || null);
-
-  return { latestRecipes, categories, featuredRecipe };
 }
 
 export default async function Home() {

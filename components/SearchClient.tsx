@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { Search as SearchIcon, ChevronDown, Clock, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import ResponsiveImage from "./ResponsiveImage";
+import { useSearchParams } from "next/navigation";
 
 interface Recipe {
   id: number;
@@ -25,7 +26,11 @@ interface PaginationData {
   totalPages: number;
 }
 
-export default function SearchClient({ initialRecipes = [] }: { initialRecipes?: any[] }) {
+function SearchContent() {
+  const searchParams = useSearchParams();
+  const initialCategory = searchParams.get("category") || "Categories";
+  const initialSearch = searchParams.get("search") || "";
+
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [pagination, setPagination] = useState<PaginationData>({
     total: 0,
@@ -33,34 +38,37 @@ export default function SearchClient({ initialRecipes = [] }: { initialRecipes?:
     limit: 12,
     totalPages: 0,
   });
-  const [searchQuery, setSearchQuery] = useState("");
-  const [category, setCategory] = useState("Categories");
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [category, setCategory] = useState(initialCategory);
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<string[]>([]);
 
-  const fetchRecipes = useCallback(async (pageValue: number, searchVal: string, catVal: string) => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({
-        page: pageValue.toString(),
-        limit: "12",
-        search: searchVal,
-        category: catVal === "Categories" ? "" : catVal,
-      });
+  const fetchRecipes = useCallback(
+    async (pageValue: number, searchVal: string, catVal: string) => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams({
+          page: pageValue.toString(),
+          limit: "12",
+          search: searchVal,
+          category: catVal === "Categories" ? "" : catVal,
+        });
 
-      const response = await fetch(`/api/recipes?${params.toString()}`);
-      const result = await response.json();
+        const response = await fetch(`/api/recipes?${params.toString()}`);
+        const result = await response.json();
 
-      if (result.data) {
-        setRecipes(result.data);
-        setPagination(result.pagination);
+        if (result.data) {
+          setRecipes(result.data);
+          setPagination(result.pagination);
+        }
+      } catch (error) {
+        console.error("Failed to fetch recipes:", error);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Failed to fetch recipes:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    [],
+  );
 
   // Initial fetch and dependency-based fetch
   useEffect(() => {
@@ -75,7 +83,14 @@ export default function SearchClient({ initialRecipes = [] }: { initialRecipes?:
   useEffect(() => {
     // In a real app, this would be a separate API call like /api/categories
     // For now, we use a sensible default or fetch all once
-    setCategories(["Breakfast", "Lunch", "Dinner", "Dessert", "Vegetarian", "Healthy"]);
+    setCategories([
+      "Breakfast",
+      "Lunch",
+      "Dinner",
+      "Dessert",
+      "Vegetarian",
+      "Healthy",
+    ]);
   }, []);
 
   const handlePageChange = (newPage: number) => {
@@ -84,7 +99,8 @@ export default function SearchClient({ initialRecipes = [] }: { initialRecipes?:
     }
   };
 
-  const formatDuration = (d: string) => d?.replace("PT", "").replace("M", " mins").replace("H", " hours ") || "N/A";
+  const formatDuration = (d: string) =>
+    d?.replace("PT", "").replace("M", " mins").replace("H", " hours ") || "N/A";
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -103,7 +119,10 @@ export default function SearchClient({ initialRecipes = [] }: { initialRecipes?:
       {/* Search Controls */}
       <div className="max-w-3xl mx-auto mb-20 space-y-6">
         <div className="relative group">
-          <SearchIcon className="absolute left-6 top-1/2 -translate-y-1/2 text-stone-400 group-focus-within:text-orange-500 transition-colors" size={22} />
+          <SearchIcon
+            className="absolute left-6 top-1/2 -translate-y-1/2 text-stone-400 group-focus-within:text-orange-500 transition-colors"
+            size={22}
+          />
           <input
             type="text"
             value={searchQuery}
@@ -120,7 +139,10 @@ export default function SearchClient({ initialRecipes = [] }: { initialRecipes?:
               <option>Newest</option>
               <option>Top Rated</option>
             </select>
-            <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none" size={20} />
+            <ChevronDown
+              className="absolute right-6 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none"
+              size={20}
+            />
           </div>
 
           <div className="relative">
@@ -131,10 +153,15 @@ export default function SearchClient({ initialRecipes = [] }: { initialRecipes?:
             >
               <option>Categories</option>
               {categories.map((cat) => (
-                <option key={cat} value={cat}>{cat}</option>
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none" size={20} />
+            <ChevronDown
+              className="absolute right-6 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none"
+              size={20}
+            />
           </div>
         </div>
       </div>
@@ -143,7 +170,9 @@ export default function SearchClient({ initialRecipes = [] }: { initialRecipes?:
       <div className="mb-8 flex items-center justify-between">
         <p className="text-stone-500 font-medium">
           {loading ? (
-            <span className="flex items-center gap-2"><Loader2 className="animate-spin" size={16} /> Searching...</span>
+            <span className="flex items-center gap-2">
+              <Loader2 className="animate-spin" size={16} /> Searching...
+            </span>
           ) : (
             `Showing ${recipes.length} of ${pagination.total} recipes`
           )}
@@ -151,7 +180,9 @@ export default function SearchClient({ initialRecipes = [] }: { initialRecipes?:
       </div>
 
       {/* Results Grid */}
-      <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 transition-opacity duration-300 ${loading ? 'opacity-50' : 'opacity-100'}`}>
+      <div
+        className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10 transition-opacity duration-300 ${loading ? "opacity-50" : "opacity-100"}`}
+      >
         {recipes.map((recipe) => (
           <Link
             key={recipe.id}
@@ -199,8 +230,12 @@ export default function SearchClient({ initialRecipes = [] }: { initialRecipes?:
           <div className="p-6 bg-stone-50 rounded-full mb-6">
             <SearchIcon size={48} className="text-stone-300" />
           </div>
-          <h3 className="text-2xl font-serif font-bold text-stone-900 mb-2">No results found</h3>
-          <p className="text-stone-500">Try adjusting your search or category filters.</p>
+          <h3 className="text-2xl font-serif font-bold text-stone-900 mb-2">
+            No results found
+          </h3>
+          <p className="text-stone-500">
+            Try adjusting your search or category filters.
+          </p>
         </div>
       )}
 
@@ -215,34 +250,41 @@ export default function SearchClient({ initialRecipes = [] }: { initialRecipes?:
           >
             <ChevronLeft size={24} />
           </button>
-          
-          <div className="flex items-center gap-2">
-            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => {
-              // Simple pagination logic to show first 3, last 3 and current if many pages
-              if (
-                pagination.totalPages > 7 &&
-                p !== 1 &&
-                p !== pagination.totalPages &&
-                Math.abs(p - pagination.page) > 2
-              ) {
-                if (p === 2 || p === pagination.totalPages - 1) return <span key={p} className="px-2 text-stone-400">...</span>;
-                return null;
-              }
 
-              return (
-                <button
-                  key={p}
-                  onClick={() => handlePageChange(p)}
-                  className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold transition-all ${
-                    pagination.page === p
-                      ? "bg-orange-600 text-white shadow-lg shadow-orange-600/20"
-                      : "text-stone-500 hover:bg-stone-50"
-                  }`}
-                >
-                  {p}
-                </button>
-              );
-            })}
+          <div className="flex items-center gap-2">
+            {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map(
+              (p) => {
+                // Simple pagination logic to show first 3, last 3 and current if many pages
+                if (
+                  pagination.totalPages > 7 &&
+                  p !== 1 &&
+                  p !== pagination.totalPages &&
+                  Math.abs(p - pagination.page) > 2
+                ) {
+                  if (p === 2 || p === pagination.totalPages - 1)
+                    return (
+                      <span key={p} className="px-2 text-stone-400">
+                        ...
+                      </span>
+                    );
+                  return null;
+                }
+
+                return (
+                  <button
+                    key={p}
+                    onClick={() => handlePageChange(p)}
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold transition-all ${
+                      pagination.page === p
+                        ? "bg-orange-600 text-white shadow-lg shadow-orange-600/20"
+                        : "text-stone-500 hover:bg-stone-50"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                );
+              },
+            )}
           </div>
 
           <button
@@ -256,5 +298,17 @@ export default function SearchClient({ initialRecipes = [] }: { initialRecipes?:
         </div>
       )}
     </div>
+  );
+}
+
+export default function SearchClient({
+  initialRecipes = [],
+}: {
+  initialRecipes?: any[];
+}) {
+  return (
+    <Suspense fallback={<div className="flex justify-center p-20"><Loader2 className="animate-spin text-orange-600" size={48} /></div>}>
+      <SearchContent />
+    </Suspense>
   );
 }

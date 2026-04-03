@@ -15,6 +15,20 @@
       "when": 1775138549888,
       "tag": "0001_brief_violations",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1775200633291,
+      "tag": "0002_jittery_agent_zero",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1775202800551,
+      "tag": "0003_spicy_matthew_murdock",
+      "breakpoints": true
     }
   ]
 }

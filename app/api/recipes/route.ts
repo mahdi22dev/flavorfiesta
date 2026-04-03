@@ -1,80 +1,58 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { drizzle } from "drizzle-orm/d1";
-import * as schema from "@/db/recipes_shema";
-import { count, like, or } from "drizzle-orm";
+import { queryD1 } from "@/lib/db";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
-    const limit = Math.max(
-      1,
-      Math.min(100, parseInt(searchParams.get("limit") || "12")),
-    );
+    const limit = Math.max(1, Math.min(100, parseInt(searchParams.get("limit") || "12")));
     const search = searchParams.get("search") || "";
     const category = searchParams.get("category") || "";
     const offset = (page - 1) * limit;
 
-    const { env } = getCloudflareContext();
+    // Build WHERE clause
+    const conditions: string[] = [];
+    const params: unknown[] = [];
 
-    // Check if DB binding exists
-    if (!env || !env.DB_RECIPES) {
-      console.error("DB_RECIPES binding is missing in the environment");
-      return NextResponse.json(
-        { error: "Database binding not found" },
-        { status: 500 },
-      );
-    }
-
-    const db = drizzle(env.DB_RECIPES, { schema });
-
-    const conditions = [];
     if (search) {
-      conditions.push(
-        or(
-          like(schema.recipes.title, `%${search}%`),
-          like(schema.recipes.description, `%${search}%`),
-        ),
-      );
+      conditions.push("(title LIKE ? OR description LIKE ?)");
+      params.push(`%${search}%`, `%${search}%`);
     }
     if (category) {
-      conditions.push(like(schema.recipes.category, `%${category}%`));
+      conditions.push("category LIKE ?");
+      params.push(`%${category}%`);
     }
 
-    const whereClause =
-      conditions.length > 0
-        ? conditions.length === 1
-          ? conditions[0]
-          : conditions.reduce((acc, curr) => (acc as any).and(curr))
-        : undefined;
+    const where = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
     // Get total count
-    const totalCountQuery = db.select({ value: count() }).from(schema.recipes);
-    if (whereClause) totalCountQuery.where(whereClause);
-    const [{ value: totalCount }] = await totalCountQuery;
+    const countRows = await queryD1<{ total: number }>(
+      `SELECT COUNT(*) as total FROM recipes ${where}`,
+      params
+    );
+    const totalCount = countRows[0]?.total ?? 0;
 
-    // Get recipes with limited columns for faster listing
-    const recipesQuery = db
-      .select({
-        id: schema.recipes.id,
-        title: schema.recipes.title,
-        slug: schema.recipes.slug,
-        description: schema.recipes.description,
-        coverImage: schema.recipes.coverImage,
-        category: schema.recipes.category,
-        servings: schema.recipes.servings,
-        prepTime: schema.recipes.prepTime,
-        totalTime: schema.recipes.totalTime,
-      })
-      .from(schema.recipes);
+    // Get paginated recipes
+    const recipes = await queryD1<{
+      id: number; title: string; slug: string; description: string;
+      cover_image: string; category: string; servings: number;
+      prep_time: string; total_time: string;
+    }>(
+      `SELECT id, title, slug, description, cover_image, category, servings, prep_time, total_time
+       FROM recipes ${where} LIMIT ? OFFSET ?`,
+      [...params, limit, offset]
+    );
 
-    if (whereClause) recipesQuery.where(whereClause);
-
-    const recipes = await recipesQuery.limit(limit).offset(offset);
+    // Normalize snake_case to camelCase
+    const normalized = recipes.map((r) => ({
+      ...r,
+      coverImage: r.cover_image,
+      prepTime: r.prep_time,
+      totalTime: r.total_time,
+    }));
 
     return NextResponse.json({
-      data: recipes,
+      data: normalized,
       pagination: {
         total: totalCount,
         page,
@@ -84,9 +62,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("API Error:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
