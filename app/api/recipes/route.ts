@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { queryD1 } from "@/db/db";
 
+const ASSETS_CDN = "https://assets.shortinx.xyz";
+function cdnUrl(key: string | null | undefined): string | null {
+  if (!key) return null;
+  return `${ASSETS_CDN}/${key.replace(/^\//, "")}`;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -43,20 +49,21 @@ export async function GET(request: NextRequest) {
       slug: string;
       description: string;
       cover_image: string;
+      transformed_cover_image: string;
       category: string;
       servings: number;
       prep_time: string;
       total_time: string;
     }>(
-      `SELECT id, title, slug, description, cover_image, category, servings, prep_time, total_time
+      `SELECT id, title, slug, description, cover_image, transformed_cover_image, category, servings, prep_time, total_time
        FROM recipes ${where} LIMIT ? OFFSET ?`,
       [...params, limit, offset],
     );
 
-    // Normalize snake_case to camelCase
+    // Normalize snake_case to camelCase, prefer CDN image over original
     const normalized = recipes.map((r) => ({
       ...r,
-      coverImage: r.cover_image,
+      coverImage: cdnUrl(r.transformed_cover_image) || r.cover_image,
       prepTime: r.prep_time,
       totalTime: r.total_time,
     }));
