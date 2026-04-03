@@ -1,43 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
-import { queryD1 } from "@/lib/db";
-import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { queryD1 } from "@/db/db";
 
-// Initialize S3 client pointing at Cloudflare R2
-const r2 = new S3Client({
-  region: "auto",
-  endpoint: process.env.R2_ENDPOINT!,
-  credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
-  },
-  // Disable checksum feature — R2 doesn't support x-amz-checksum-mode
-  requestChecksumCalculation: "WHEN_REQUIRED" as const,
-  responseChecksumValidation: "WHEN_REQUIRED" as const,
-});
+// Public CDN base URL — all R2 assets are served from here
+const ASSETS_CDN = "https://assets.shortinx.xyz";
 
-/**
- * Generates a pre-signed URL (auth in query params, not headers)
- * then uses plain fetch — avoids AWS SDK header signing issues with R2.
- */
-async function fetchFromR2(key: string): Promise<any> {
-  const command = new GetObjectCommand({
-    Bucket: process.env.R2_BUCKET_NAME!,
-    Key: key,
-  });
+function cdnUrl(key: string | null | undefined): string | null {
+  if (!key) return null;
+  return `${ASSETS_CDN}/${key.replace(/^\//, "")}`;
+}
 
-  // Sign a temporary URL (valid for 60s) — put credentials in query params, not headers
-  const signedUrl = await getSignedUrl(r2, command, { expiresIn: 60 });
-  console.log("[R2] Pre-signed URL generated for key:", key);
+async function fetchJsonFromCdn(key: string): Promise<any> {
+  const url = `${ASSETS_CDN}/${key.replace(/^\//, "")}`;
+  console.log("[CDN] Fetching:", url);
 
-  const res = await fetch(signedUrl);
+  const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`R2 fetch error ${res.status}: ${text}`);
+    throw new Error(`CDN fetch error ${res.status}: ${text}`);
   }
 
-  const text = await res.text();
-  return JSON.parse(text);
+  return res.json();
 }
 
 export async function GET(
@@ -47,7 +29,7 @@ export async function GET(
   try {
     const { slug } = await params;
 
-    // 1. Fetch metadata from D1 via REST API
+    // 1. Fetch metadata from D1
     const rows = await queryD1<{
       id: number;
       title: string;
@@ -71,31 +53,36 @@ export async function GET(
 
     const recipe = rows[0];
 
-    // 2. Fetch full content from R2 via pre-signed URL
+    // 2. Resolve cover image: prefer transformed (CDN), fall back to original scraped URL
+    const coverImage =
+      cdnUrl(recipe.transformed_cover_image) || recipe.cover_image;
+
+    console.log("coverImage", coverImage);
+
+    // 3. Fetch full recipe content (JSON) from CDN
     try {
-      const data = await fetchFromR2(recipe.s3_key);
+      const data = await fetchJsonFromCdn(recipe.s3_key);
 
       return NextResponse.json({
         ...recipe,
-        // Normalize snake_case fields to camelCase for the UI
-        coverImage: recipe.cover_image,
+        ...data,
+        coverImage,
         prepTime: recipe.prep_time,
         cookTime: recipe.cook_time,
         totalTime: recipe.total_time,
-        ...data, // contains content, images, recipe (ingredients/instructions)
       });
-    } catch (r2Err) {
-      console.error("[R2] Failed:", r2Err);
+    } catch (cdnErr) {
+      console.error("[CDN] Failed to fetch recipe JSON:", cdnErr);
       return NextResponse.json(
         {
           ...recipe,
-          coverImage: recipe.cover_image,
+          coverImage,
           prepTime: recipe.prep_time,
           cookTime: recipe.cook_time,
           totalTime: recipe.total_time,
           recipe: null,
           content: [],
-          error: `R2 fetch failed: ${(r2Err as Error).message}`,
+          error: `CDN fetch failed: ${(cdnErr as Error).message}`,
         },
         { status: 200 },
       );

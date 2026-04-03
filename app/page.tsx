@@ -6,28 +6,48 @@ import Footer from "../components/Footer";
 
 export const dynamic = "force-dynamic";
 
-import { queryD1 } from "@/lib/db";
+import { queryD1 } from "@/db/db";
+
+// Public CDN base URL — same as the single-recipe API route
+const ASSETS_CDN = "https://assets.shortinx.xyz";
+function cdnUrl(key: string | null | undefined): string | null {
+  if (!key) return null;
+  return `${ASSETS_CDN}/${key.replace(/^\//, "")}`;
+}
 
 async function getHomePageData() {
   try {
     // Get Latest Recipes
     const latestRecipes = await queryD1<{
-      id: number; title: string; slug: string; description: string;
-      cover_image: string; category: string; servings: number;
-      prep_time: string; total_time: string;
+      id: number;
+      title: string;
+      slug: string;
+      description: string;
+      cover_image: string;
+      transformed_cover_image: string;
+      category: string;
+      servings: number;
+      prep_time: string;
+      total_time: string;
     }>(
-      `SELECT id, title, slug, description, cover_image, category, servings, prep_time, total_time
-       FROM recipes ORDER BY created_at DESC LIMIT 6`
+      `SELECT id, title, slug, description, cover_image, transformed_cover_image, category, servings, prep_time, total_time
+       FROM recipes ORDER BY created_at DESC LIMIT 6`,
     );
 
     // Get Categories with Counts
     const categoriesRaw = await queryD1<{ name: string; count: number }>(
-      `SELECT category as name, COUNT(*) as count FROM recipes GROUP BY category`
+      `SELECT category as name, COUNT(*) as count FROM recipes GROUP BY category`,
     );
 
     const categoryIcons: Record<string, string> = {
-      Breakfast: "🍳", Lunch: "🥗", Dinner: "🍝", Dessert: "🍰",
-      Drinks: "🍹", Vegan: "🌿", Seafood: "🐟", "Main Course": "🍗",
+      Breakfast: "🍳",
+      Lunch: "🥗",
+      Dinner: "🍝",
+      Dessert: "🍰",
+      Drinks: "🍹",
+      Vegan: "🌿",
+      Seafood: "🐟",
+      "Main Course": "🍗",
     };
 
     const categories = categoriesRaw.map((cat) => ({
@@ -38,18 +58,26 @@ async function getHomePageData() {
 
     // Get a Random Featured Recipe
     const featuredRows = await queryD1<{
-      id: number; title: string; slug: string; description: string;
-      cover_image: string; category: string; servings: number; total_time: string;
+      id: number;
+      title: string;
+      slug: string;
+      description: string;
+      cover_image: string;
+      transformed_cover_image: string;
+      category: string;
+      servings: number;
+      total_time: string;
     }>(
-      `SELECT id, title, slug, description, cover_image, category, servings, total_time
-       FROM recipes ORDER BY RANDOM() LIMIT 1`
+      `SELECT id, title, slug, description, cover_image, transformed_cover_image, category, servings, total_time
+       FROM recipes ORDER BY RANDOM() LIMIT 1`,
     );
     const featuredRecipe = featuredRows[0] || null;
 
     // Normalize snake_case from DB to camelCase for UI
+    // Prefer transformed CDN image, fall back to original scraped URL
     const normalize = (r: any) => ({
       ...r,
-      coverImage: r.cover_image,
+      coverImage: cdnUrl(r.transformed_cover_image) || r.cover_image,
       prepTime: r.prep_time,
       totalTime: r.total_time,
     });
