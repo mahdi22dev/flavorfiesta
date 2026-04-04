@@ -15,8 +15,12 @@ interface HeroProps {
 
 export default function Hero({ recipe }: HeroProps) {
   const displayTitle = recipe?.title || "The Art of Gourmet Cooking";
-  const displayDesc = recipe?.description || "Discover the secrets behind professional culinary techniques and authentic flavors from around the world.";
-  const displayImage = recipe?.coverImage || "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=1920";
+  const displayDesc =
+    recipe?.description ||
+    "Discover the secrets behind professional culinary techniques and authentic flavors from around the world.";
+  const displayImage =
+    recipe?.coverImage ||
+    "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=1920";
   const displayTag = recipe?.category || "Featured Selection";
 
   return (
@@ -25,7 +29,7 @@ export default function Hero({ recipe }: HeroProps) {
         <img
           src={displayImage}
           alt={displayTitle}
-          className="w-full h-full object-cover opacity-60"
+          className="w-full h-full object-cover opacity-60 transition-all"
           referrerPolicy="no-referrer"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-stone-900/90 via-stone-900/40 to-transparent" />
@@ -42,14 +46,21 @@ export default function Hero({ recipe }: HeroProps) {
             {displayTag}
           </span>
           <h2 className="text-5xl md:text-7xl font-serif font-bold text-white leading-tight mb-6">
-            {displayTitle.split(' ').map((word, i) => (
-              i === 2 ? <span key={i}><br /><span className="italic text-orange-400">{word} </span></span> : word + ' '
-            ))}
+            {displayTitle.split(" ").map((word, i) =>
+              i === 2 ? (
+                <span key={i}>
+                  <br />
+                  <span className="italic text-orange-400">{word} </span>
+                </span>
+              ) : (
+                word + " "
+              ),
+            )}
           </h2>
           <p className="text-lg text-stone-300 mb-8 max-w-lg line-clamp-3">
             {displayDesc}
           </p>
-          <Link 
+          <Link
             href={recipe ? `/recipes/${recipe.slug}` : "/recipes"}
             className="group inline-flex items-center gap-3 bg-orange-600 hover:bg-orange-700 text-white px-8 py-4 rounded-full font-bold transition-all transform hover:scale-105"
           >

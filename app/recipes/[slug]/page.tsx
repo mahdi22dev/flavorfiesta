@@ -74,7 +74,7 @@ export default async function RecipePost({
   return (
     <div className="min-h-screen flex flex-col">
       <Header bgColor="bg-stone-50/90" />
-      <main className="flex-grow bg-white">
+      <main className="grow bg-white">
         {/* Hero Section */}
         <section className="pt-14 pb-8 bg-stone-50 border-b border-stone-200">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -122,7 +122,16 @@ export default async function RecipePost({
               href="#recipe-card"
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-full shadow-md shadow-orange-200 transition-all duration-200 hover:scale-105 text-xs uppercase tracking-widest"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-3.5 h-3.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <path d="M12 5v14M5 12l7 7 7-7" />
               </svg>
               Jump to Recipe
@@ -132,7 +141,7 @@ export default async function RecipePost({
 
         {/* ── You May Also Like ── */}
         {suggested.length > 0 && (
-          <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+          <section className="hidden sm:block max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
             <div className="flex items-center gap-4 mb-6">
               <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400">
                 You may also like
@@ -148,7 +157,7 @@ export default async function RecipePost({
                   className="group flex gap-4 items-center bg-stone-50 hover:bg-white border border-stone-100 hover:border-stone-200 hover:shadow-md rounded-2xl p-3 transition-all duration-200"
                 >
                   {/* Thumbnail */}
-                  <div className="w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden bg-stone-200">
+                  <div className="w-20 h-20 shrink-0 rounded-xl overflow-hidden bg-stone-200">
                     {r.coverImage ? (
                       <img
                         src={r.coverImage}
@@ -157,7 +166,7 @@ export default async function RecipePost({
                         referrerPolicy="no-referrer"
                       />
                     ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-orange-100 to-orange-200 flex items-center justify-center text-2xl">
+                      <div className="w-full h-full bg-linear-to-br from-orange-100 to-orange-200 flex items-center justify-center text-2xl">
                         🍽️
                       </div>
                     )}
@@ -187,15 +196,15 @@ export default async function RecipePost({
 
         {/* Cover Image */}
         {post.cover_image && (
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-            <div className="rounded-2xl overflow-hidden shadow-xl border border-stone-100 aspect-[16/9] relative group">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 flex justify-center">
+            <div className="rounded-[3rem] overflow-hidden group shadow-sm bg-stone-50 border border-stone-100 relative">
               <img
                 src={post.cover_image}
                 alt={post.title}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                className="max-h-[85vh] w-auto h-auto object-contain transition-transform duration-700 group-hover:scale-105"
                 referrerPolicy="no-referrer"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-stone-900/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-0 bg-linear-to-t from-stone-900/10 via-transparent to-transparent pointer-events-none" />
             </div>
           </div>
         )}

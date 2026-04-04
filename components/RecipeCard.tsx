@@ -26,7 +26,7 @@ export default function RecipeCard({
         <ResponsiveImage 
           src={displayImage} 
           alt={title} 
-          aspectRatio="aspect-auto h-full w-full"
+          aspectRatio="w-full h-full"
           containerClassName="rounded-none border-none shadow-none"
         />
         <div className="absolute top-4 left-4 z-10">

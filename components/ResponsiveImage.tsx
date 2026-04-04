@@ -12,6 +12,8 @@ interface ResponsiveImageProps {
   maxHeight?: string;
   minHeight?: string;
   priority?: boolean;
+  objectFit?: "cover" | "contain" | "scale-down";
+  containerBg?: string;
 }
 
 export default function ResponsiveImage({
@@ -23,12 +25,14 @@ export default function ResponsiveImage({
   children,
   maxHeight,
   minHeight,
+  objectFit = "cover",
+  containerBg = "bg-stone-50",
 }: ResponsiveImageProps) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   return (
     <div 
-      className={`relative overflow-hidden rounded-[2rem] group shadow-sm hover:shadow-xl transition-all duration-500 border border-stone-100 ${aspectRatio} ${containerClassName}`}
+      className={`relative overflow-hidden rounded-[2rem] group shadow-sm hover:shadow-xl transition-all duration-500 border border-stone-100 ${containerBg} ${aspectRatio} ${containerClassName}`}
       style={{ 
         maxHeight: maxHeight || "none", 
         minHeight: minHeight || "none" 
@@ -54,7 +58,9 @@ export default function ResponsiveImage({
         animate={{ opacity: isLoaded ? 1 : 0, scale: isLoaded ? 1 : 1.05 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
         onLoad={() => setIsLoaded(true)}
-        className={`w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105 ${className}`}
+        className={`w-full h-full transition-transform duration-1000 ease-out group-hover:scale-105 ${
+          objectFit === "cover" ? "object-cover" : "object-contain"
+        } ${className}`}
         referrerPolicy="no-referrer"
       />
 
