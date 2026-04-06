@@ -18,17 +18,29 @@ export default function RecipeCard({
   totalTime,
   slug,
 }: RecipeCardProps) {
-  const displayImage = coverImage || "https://images.unsplash.com/photo-1495521821757-a1efb6729352?auto=format&fit=crop&q=80&w=800";
-  
   return (
-    <Link href={`/recipes/${slug}`} className="group block bg-white rounded-2xl overflow-hidden border border-stone-200 hover:shadow-xl transition-all duration-300 h-full">
-      <div className="relative h-64 overflow-hidden">
-        <ResponsiveImage 
-          src={displayImage} 
-          alt={title} 
-          aspectRatio="w-full h-full"
-          containerClassName="rounded-none border-none shadow-none"
-        />
+    <Link
+      href={`/recipes/${slug}`}
+      className="group block bg-white rounded-2xl overflow-hidden border border-stone-200 hover:shadow-xl transition-all duration-300 h-full"
+    >
+      <div className="relative h-64 overflow-hidden bg-stone-100 flex items-center justify-center">
+        {coverImage ? (
+          <ResponsiveImage
+            src={coverImage}
+            alt={title}
+            aspectRatio="w-full h-full"
+            containerClassName="rounded-none border-none shadow-none"
+          />
+        ) : (
+          <div className="flex flex-col items-center justify-center text-stone-400 gap-2">
+            <div className="w-12 h-12 rounded-full bg-stone-200 flex items-center justify-center">
+              <Clock size={20} className="opacity-50" />
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-widest">
+              Image Coming Soon
+            </span>
+          </div>
+        )}
         <div className="absolute top-4 left-4 z-10">
           <span className="px-3 py-1 text-[10px] font-bold uppercase tracking-widest bg-white/90 backdrop-blur-sm text-stone-900 rounded-full">
             {category || "General"}

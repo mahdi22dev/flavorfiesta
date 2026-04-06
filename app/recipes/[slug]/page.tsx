@@ -32,13 +32,14 @@ export default async function RecipePost({
       title: string;
       slug: string;
       description: string;
-      cover_image: string;
-      transformed_cover_image: string;
+      hero_wide: string;
       category: string;
       total_time: string;
     }>(
-      `SELECT title, slug, description, cover_image, transformed_cover_image, category, total_time
-       FROM recipes WHERE slug != ? ORDER BY RANDOM() LIMIT 3`,
+      `SELECT r.title, r.slug, r.description, ri.hero_wide, r.category, r.total_time
+       FROM recipes r
+       LEFT JOIN recipe_images ri ON r.id = ri.recipe_id
+       WHERE r.slug != ? ORDER BY RANDOM() LIMIT 3`,
       [slug],
     ).catch(() => []),
   ]);
@@ -53,6 +54,7 @@ export default async function RecipePost({
     title: data.title,
     description: data.description,
     cover_image: data.coverImage,
+    category: data.category,
     recipe: {
       prep_time: data.recipe?.prep_time || data.prepTime,
       cook_time: data.recipe?.cook_time || data.cookTime,
@@ -68,7 +70,8 @@ export default async function RecipePost({
 
   const suggested = (suggestedRows as any[]).map((r) => ({
     ...r,
-    coverImage: cdnUrl(r.transformed_cover_image) || r.cover_image,
+    coverImage: cdnUrl(r.hero_wide),
+    category: r.category || "General",
   }));
 
   return (
@@ -157,7 +160,7 @@ export default async function RecipePost({
                   className="group flex gap-4 items-center bg-stone-50 hover:bg-white border border-stone-100 hover:border-stone-200 hover:shadow-md rounded-2xl p-3 transition-all duration-200"
                 >
                   {/* Thumbnail */}
-                  <div className="w-20 h-20 shrink-0 rounded-xl overflow-hidden bg-stone-200">
+                  <div className="w-20 h-20 shrink-0 rounded-xl overflow-hidden bg-stone-100 flex items-center justify-center border border-stone-100">
                     {r.coverImage ? (
                       <img
                         src={r.coverImage}
@@ -166,8 +169,11 @@ export default async function RecipePost({
                         referrerPolicy="no-referrer"
                       />
                     ) : (
-                      <div className="w-full h-full bg-linear-to-br from-orange-100 to-orange-200 flex items-center justify-center text-2xl">
-                        🍽️
+                      <div className="flex flex-col items-center justify-center text-stone-300 gap-1 px-1 text-center">
+                        <Clock size={12} className="opacity-40" />
+                        <span className="text-[7px] font-bold uppercase tracking-widest leading-none">
+                          Image Coming Soon
+                        </span>
                       </div>
                     )}
                   </div>

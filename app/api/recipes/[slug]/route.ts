@@ -29,23 +29,33 @@ export async function GET(
   try {
     const { slug } = await params;
 
-    // 1. Fetch metadata from D1
+    // 1. Fetch metadata from D1 with join to images
     const rows = await queryD1<{
       id: number;
       title: string;
       slug: string;
       description: string;
-      cover_image: string;
+      hero_wide: string;
+      macro_texture: string;
+      ingredients_flatlay: string;
+      whole_dish: string;
       category: string;
       servings: number;
       prep_time: string;
       cook_time: string;
       total_time: string;
       s3_key: string;
-      old_title: string;
-      scraped_url: string;
-      transformed_cover_image: string;
-    }>("SELECT * FROM recipes WHERE slug = ? LIMIT 1", [slug]);
+      quality_score: string;
+    }>(
+      `SELECT 
+        r.id, r.title, r.slug, r.description, 
+        ri.hero_wide, ri.macro_texture, ri.ingredients_flatlay, ri.whole_dish,
+        r.category, r.servings, r.prep_time, r.cook_time, r.total_time, r.s3_key, r.quality_score
+       FROM recipes r
+       LEFT JOIN recipe_images ri ON r.id = ri.recipe_id
+       WHERE r.slug = ? LIMIT 1`,
+      [slug],
+    );
 
     if (!rows.length) {
       return NextResponse.json({ error: "Recipe not found" }, { status: 404 });
@@ -53,9 +63,8 @@ export async function GET(
 
     const recipe = rows[0];
 
-    // 2. Resolve cover image: prefer transformed (CDN), fall back to original scraped URL
-    const coverImage =
-      cdnUrl(recipe.transformed_cover_image) || recipe.cover_image;
+    // 2. Resolve cover image from CDN
+    const coverImage = cdnUrl(recipe.hero_wide);
 
     console.log("coverImage", coverImage);
 
@@ -67,6 +76,13 @@ export async function GET(
         ...recipe,
         ...data,
         coverImage,
+        images: {
+          ...data.images, // Any legacy images from JSON
+          hero_wide: coverImage,
+          macro_texture: cdnUrl(recipe.macro_texture),
+          ingredients_flatlay: cdnUrl(recipe.ingredients_flatlay),
+          whole_dish: cdnUrl(recipe.whole_dish),
+        },
         prepTime: recipe.prep_time,
         cookTime: recipe.cook_time,
         totalTime: recipe.total_time,

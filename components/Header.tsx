@@ -41,6 +41,12 @@ export default function Header({
                 Recipes
               </Link>
               <Link
+                href="/guides"
+                className="hover:text-orange-600 transition-colors"
+              >
+                Guides
+              </Link>
+              <Link
                 href="/#categories"
                 className="hover:text-orange-600 transition-colors"
               >

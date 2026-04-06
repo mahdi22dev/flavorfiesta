@@ -23,15 +23,16 @@ async function getHomePageData() {
       title: string;
       slug: string;
       description: string;
-      cover_image: string;
-      transformed_cover_image: string;
+      hero_wide: string;
       category: string;
       servings: number;
       prep_time: string;
       total_time: string;
     }>(
-      `SELECT id, title, slug, description, cover_image, transformed_cover_image, category, servings, prep_time, total_time
-       FROM recipes ORDER BY created_at DESC LIMIT 6`,
+      `SELECT r.id, r.title, r.slug, r.description, ri.hero_wide, r.category, r.servings, r.prep_time, r.total_time
+       FROM recipes r
+       LEFT JOIN recipe_images ri ON r.id = ri.recipe_id
+       ORDER BY r.created_at DESC LIMIT 6`,
     );
 
     // Get Categories with Counts
@@ -62,22 +63,23 @@ async function getHomePageData() {
       title: string;
       slug: string;
       description: string;
-      cover_image: string;
-      transformed_cover_image: string;
+      hero_wide: string;
       category: string;
       servings: number;
       total_time: string;
     }>(
-      `SELECT id, title, slug, description, cover_image, transformed_cover_image, category, servings, total_time
-       FROM recipes ORDER BY RANDOM() LIMIT 1`,
+      `SELECT r.id, r.title, r.slug, r.description, ri.hero_wide, r.category, r.servings, r.total_time
+       FROM recipes r
+       LEFT JOIN recipe_images ri ON r.id = ri.recipe_id
+       ORDER BY RANDOM() LIMIT 1`,
     );
     const featuredRecipe = featuredRows[0] || null;
 
     // Normalize snake_case from DB to camelCase for UI
-    // Prefer transformed CDN image, fall back to original scraped URL
     const normalize = (r: any) => ({
       ...r,
-      coverImage: cdnUrl(r.transformed_cover_image) || r.cover_image,
+      coverImage: cdnUrl(r.hero_wide),
+      category: r.category || "General",
       prepTime: r.prep_time,
       totalTime: r.total_time,
     });
@@ -99,7 +101,7 @@ export default async function Home() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <main className="flex-grow">
+      <main className="grow">
         <Hero recipe={featuredRecipe} />
         <Categories categories={categories} />
         <FeaturedRecipes recipes={latestRecipes} />
@@ -118,7 +120,7 @@ export default async function Home() {
               <input
                 type="email"
                 placeholder="Enter your email address"
-                className="flex-grow px-6 py-4 rounded-full bg-white text-stone-900 focus:outline-none focus:ring-4 focus:ring-orange-400/50"
+                className="grow px-6 py-4 rounded-full bg-white text-stone-900 focus:outline-none focus:ring-4 focus:ring-orange-400/50"
                 required
               />
               <button className="bg-stone-900 text-white px-8 py-4 rounded-full font-bold hover:bg-stone-800 transition-colors">

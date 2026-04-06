@@ -43,29 +43,27 @@ export async function GET(request: NextRequest) {
     const totalCount = countRows[0]?.total ?? 0;
 
     // Get paginated recipes
-    const recipes = await queryD1<{
+    const rows = await queryD1<{
       id: number;
       title: string;
       slug: string;
       description: string;
-      cover_image: string;
-      transformed_cover_image: string;
+      hero_wide: string | null;
       category: string;
       servings: number;
-      prep_time: string;
-      total_time: string;
+      prepTime: string;
+      totalTime: string;
     }>(
-      `SELECT id, title, slug, description, cover_image, transformed_cover_image, category, servings, prep_time, total_time
-       FROM recipes ${where} LIMIT ? OFFSET ?`,
+      `SELECT r.id, r.title, r.slug, r.description, ri.hero_wide, r.category, r.servings, r.prep_time as prepTime, r.total_time as totalTime
+       FROM recipes r
+       LEFT JOIN recipe_images ri ON r.id = ri.recipe_id
+       ${where} LIMIT ? OFFSET ?`,
       [...params, limit, offset],
     );
 
-    // Normalize snake_case to camelCase, prefer CDN image over original
-    const normalized = recipes.map((r) => ({
+    const normalized = rows.map((r) => ({
       ...r,
-      coverImage: cdnUrl(r.transformed_cover_image) || r.cover_image,
-      prepTime: r.prep_time,
-      totalTime: r.total_time,
+      coverImage: cdnUrl(r.hero_wide),
     }));
 
     return NextResponse.json({

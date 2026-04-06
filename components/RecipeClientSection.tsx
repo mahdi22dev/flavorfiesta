@@ -37,13 +37,29 @@ interface Props {
   }>;
 }
 
+function ImagePlaceholder({ alt, className = "" }: { alt: string; className?: string }) {
+  return (
+    <div className={`w-full aspect-video rounded-4xl bg-stone-50 border border-dashed border-stone-200 flex flex-col items-center justify-center gap-4 text-stone-300 p-8 ${className}`}>
+      <div className="w-16 h-16 rounded-3xl bg-white shadow-sm flex items-center justify-center">
+        <Clock size={32} className="opacity-20" />
+      </div>
+      <div className="text-center">
+        <p className="text-xs font-bold uppercase tracking-[0.2em] mb-1">Coming Soon</p>
+        <p className="text-[10px] font-medium opacity-60 max-w-[200px] leading-relaxed">
+          The visual for "{alt}" is currently in our culinary studio.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function renderCallout(block: any, index: string | number) {
   const variant = block.variant || block.variant_type || "tip";
 
   let bgColor = "bg-orange-50 border-orange-200";
   let titleColor = "text-orange-900";
   let Icon = (
-    <Lightbulb className="w-6 h-6 text-orange-600 mr-4 mt-0.5 flex-shrink-0" />
+    <Lightbulb className="w-6 h-6 text-orange-600 mr-4 mt-0.5 shrink-0" />
   );
   let defaultTitle = "Tip";
 
@@ -51,21 +67,21 @@ function renderCallout(block: any, index: string | number) {
     bgColor = "bg-red-50 border-red-200";
     titleColor = "text-red-900";
     Icon = (
-      <AlertCircle className="w-6 h-6 text-red-600 mr-4 mt-0.5 flex-shrink-0" />
+      <AlertCircle className="w-6 h-6 text-red-600 mr-4 mt-0.5 shrink-0" />
     );
     defaultTitle = "Note";
   } else if (variant === "info") {
     bgColor = "bg-blue-50 border-blue-200";
     titleColor = "text-blue-900";
     Icon = (
-      <Info className="w-6 h-6 text-blue-600 mr-4 mt-0.5 flex-shrink-0" />
+      <Info className="w-6 h-6 text-blue-600 mr-4 mt-0.5 shrink-0" />
     );
     defaultTitle = "Info";
   } else if (variant === "success") {
     bgColor = "bg-emerald-50 border-emerald-200";
     titleColor = "text-emerald-900";
     Icon = (
-      <CheckCircle className="w-6 h-6 text-emerald-600 mr-4 mt-0.5 flex-shrink-0" />
+      <CheckCircle className="w-6 h-6 text-emerald-600 mr-4 mt-0.5 shrink-0" />
     );
     defaultTitle = "Success";
   }
@@ -111,8 +127,8 @@ export default function RecipeClientSection({
       <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 mb-6">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 bg-white rounded-2xl p-5 md:p-8 border border-stone-100 shadow-md shadow-stone-200/40 relative overflow-hidden ring-1 ring-stone-900/5">
           {/* Background decorative elements */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-orange-100/40 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 -z-0" />
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-stone-100 rounded-full blur-[40px] translate-y-1/4 -translate-x-1/4 -z-0" />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-orange-100/40 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 z-0" />
+          <div className="absolute bottom-0 left-0 w-32 h-32 bg-stone-100 rounded-full blur-2xl translate-y-1/4 -translate-x-1/4 z-0" />
 
           <div className="lg:col-span-1 space-y-6 relative z-10 border-b lg:border-b-0 lg:border-r border-stone-100 pb-6 lg:pb-0">
             <div>
@@ -175,7 +191,7 @@ export default function RecipeClientSection({
             return (
               <p
                 key={index}
-                className="leading-relaxed mb-4 text-base"
+                className="leading-relaxed mb-6 text-lg text-stone-700"
                 dangerouslySetInnerHTML={{ __html: block.text }}
               />
             );
@@ -184,33 +200,81 @@ export default function RecipeClientSection({
             return (
               <h2
                 key={index}
-                className="text-2xl font-serif font-bold text-stone-900 mt-10 mb-5"
+                id={block.anchor}
+                className="text-3xl font-serif font-bold text-stone-900 mt-16 mb-8 scroll-mt-24"
               >
                 {block.text}
               </h2>
             );
           }
           if (block.type === "image") {
-            const blockId = (block as any).id;
-            const src = blockId
-              ? images[blockId as keyof typeof images]
-              : (block as any).src;
+            // Support both direct ID/src and reference-based images from storyboard
+            const blockId = block.id || block.reference;
+            const src = blockId ? images[blockId] : block.src;
 
             if (src) {
               return (
-                <div key={index} className="my-12">
+                <div key={index} className="my-14 relative group">
                   <img
                     src={src}
-                    alt="Recipe Image"
-                    className="w-full h-auto rounded-3xl shadow-xl object-cover border border-stone-100"
+                    alt={block.alt || "Recipe Illustration"}
+                    className="w-full h-auto rounded-4xl shadow-2xl border border-stone-100 object-cover"
                     referrerPolicy="no-referrer"
                   />
+                  {block.caption && (
+                    <p className="mt-4 text-center text-xs text-stone-400 font-medium italic">
+                      {block.caption}
+                    </p>
+                  )}
                 </div>
               );
             }
+
+            // If no image, show placeholder
+            return (
+              <div key={index} className="my-14">
+                <ImagePlaceholder alt={block.alt || block.reference || "Illustration"} />
+                {block.caption && (
+                  <p className="mt-4 text-center text-xs text-stone-400 font-medium italic">
+                    {block.caption}
+                  </p>
+                )}
+              </div>
+            );
           }
           if (block.type === "callout") {
             return renderCallout(block, index);
+          }
+          if (block.type === "list") {
+            const ListTag = block.style === "ordered" ? "ol" : "ul";
+            return (
+              <ListTag key={index} className={`my-8 space-y-3 ${block.style === "ordered" ? "list-decimal pl-6" : "list-disc pl-6"} text-stone-700`}>
+                {block.items.map((item: string, i: number) => (
+                  <li key={i} className="pl-2 leading-relaxed" dangerouslySetInnerHTML={{ __html: item }} />
+                ))}
+              </ListTag>
+            );
+          }
+          if (block.type === "quote") {
+            return (
+              <blockquote key={index} className="my-12 border-l-4 border-orange-500 pl-8 py-2 italic font-serif text-2xl text-stone-600 leading-relaxed">
+                "{block.text}"
+                {block.author && (
+                  <footer className="mt-4 text-sm font-sans font-bold uppercase tracking-widest text-stone-400 not-italic">
+                    — {block.author}
+                  </footer>
+                )}
+              </blockquote>
+            );
+          }
+          if (block.type === "divider") {
+            return (
+              <div key={index} className="my-16 flex items-center justify-center gap-4">
+                <div className="h-px w-12 bg-stone-200" />
+                <div className="w-1.5 h-1.5 rounded-full bg-orange-200" />
+                <div className="h-px w-12 bg-stone-200" />
+              </div>
+            );
           }
           return null;
         })}
@@ -321,7 +385,7 @@ export default function RecipeClientSection({
                       referrerPolicy="no-referrer"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-orange-100 to-amber-200 flex items-center justify-center text-4xl">
+                    <div className="w-full h-full bg-linear-to-br from-orange-100 to-amber-200 flex items-center justify-center text-4xl">
                       🍽️
                     </div>
                   )}
