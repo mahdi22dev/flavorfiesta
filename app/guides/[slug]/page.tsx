@@ -1,7 +1,14 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { notFound } from "next/navigation";
-import { Lightbulb, AlertCircle, Info, CheckCircle, ChevronRight, Calendar } from "lucide-react";
+import {
+  Lightbulb,
+  AlertCircle,
+  Info,
+  CheckCircle,
+  ChevronRight,
+  Calendar,
+} from "lucide-react";
 import { headers } from "next/headers";
 import Link from "next/link";
 import ResponsiveImage from "@/components/ResponsiveImage";
@@ -12,14 +19,14 @@ export default async function GuidePost({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-
+  console.log("slug recieved :", slug);
   // Get host for absolute URL requirement in Server Components fetch
   const headersList = await headers();
   const host = headersList.get("host");
   const protocol = host?.includes("localhost") ? "http" : "https";
 
-  const response = await fetch(`${protocol}://${host}/api/guides/${slug}`, { 
-    cache: "no-store" 
+  const response = await fetch(`${protocol}://${host}/api/guides/${slug}`, {
+    cache: "no-store",
   });
 
   if (!response.ok) {
@@ -28,54 +35,62 @@ export default async function GuidePost({
 
   const guide = await response.json();
 
-function ImagePlaceholder({ alt, className = "" }: { alt: string; className?: string }) {
-  return (
-    <div className={`w-full aspect-video rounded-4xl bg-stone-50 border border-dashed border-stone-200 flex flex-col items-center justify-center gap-4 text-stone-300 p-8 ${className}`}>
-      <div className="w-16 h-16 rounded-3xl bg-white shadow-sm flex items-center justify-center">
-        <Calendar size={32} className="opacity-20" />
+  function ImagePlaceholder({
+    alt,
+    className = "",
+  }: {
+    alt: string;
+    className?: string;
+  }) {
+    return (
+      <div
+        className={`w-full aspect-video rounded-4xl bg-stone-50 border border-dashed border-stone-200 flex flex-col items-center justify-center gap-4 text-stone-300 p-8 ${className}`}
+      >
+        <div className="w-16 h-16 rounded-3xl bg-white shadow-sm flex items-center justify-center">
+          <Calendar size={32} className="opacity-20" />
+        </div>
+        <div className="text-center">
+          <p className="text-xs font-bold uppercase tracking-[0.2em] mb-1">
+            Coming Soon
+          </p>
+          <p className="text-[10px] font-medium opacity-60 max-w-[200px] leading-relaxed">
+            The visual for "{alt}" is currently in our culinary studio.
+          </p>
+        </div>
       </div>
-      <div className="text-center">
-        <p className="text-xs font-bold uppercase tracking-[0.2em] mb-1">Coming Soon</p>
-        <p className="text-[10px] font-medium opacity-60 max-w-[200px] leading-relaxed">
-          The visual for "{alt}" is currently in our culinary studio.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function renderCallout(block: any, index: string | number) {
-  const variant = block.variant || block.variant_type || "tip";
-
-  let bgColor = "bg-orange-50 border-orange-200";
-  let titleColor = "text-orange-900";
-  let Icon = (
-    <Lightbulb className="w-6 h-6 text-orange-600 mr-4 mt-0.5 shrink-0" />
-  );
-  let defaultTitle = "Tip";
-
-  if (variant === "warning" || variant === "alert") {
-    bgColor = "bg-red-50 border-red-200";
-    titleColor = "text-red-900";
-    Icon = (
-      <AlertCircle className="w-6 h-6 text-red-600 mr-4 mt-0.5 shrink-0" />
     );
-    defaultTitle = "Note";
-  } else if (variant === "info") {
-    bgColor = "bg-blue-50 border-blue-200";
-    titleColor = "text-blue-900";
-    Icon = (
-      <Info className="w-6 h-6 text-blue-600 mr-4 mt-0.5 shrink-0" />
-    );
-    defaultTitle = "Info";
-  } else if (variant === "success") {
-    bgColor = "bg-emerald-50 border-emerald-200";
-    titleColor = "text-emerald-900";
-    Icon = (
-      <CheckCircle className="w-6 h-6 text-emerald-600 mr-4 mt-0.5 shrink-0" />
-    );
-    defaultTitle = "Success";
   }
+
+  function renderCallout(block: any, index: string | number) {
+    const variant = block.variant || block.variant_type || "tip";
+
+    let bgColor = "bg-orange-50 border-orange-200";
+    let titleColor = "text-orange-900";
+    let Icon = (
+      <Lightbulb className="w-6 h-6 text-orange-600 mr-4 mt-0.5 shrink-0" />
+    );
+    let defaultTitle = "Tip";
+
+    if (variant === "warning" || variant === "alert") {
+      bgColor = "bg-red-50 border-red-200";
+      titleColor = "text-red-900";
+      Icon = (
+        <AlertCircle className="w-6 h-6 text-red-600 mr-4 mt-0.5 shrink-0" />
+      );
+      defaultTitle = "Note";
+    } else if (variant === "info") {
+      bgColor = "bg-blue-50 border-blue-200";
+      titleColor = "text-blue-900";
+      Icon = <Info className="w-6 h-6 text-blue-600 mr-4 mt-0.5 shrink-0" />;
+      defaultTitle = "Info";
+    } else if (variant === "success") {
+      bgColor = "bg-emerald-50 border-emerald-200";
+      titleColor = "text-emerald-900";
+      Icon = (
+        <CheckCircle className="w-6 h-6 text-emerald-600 mr-4 mt-0.5 shrink-0" />
+      );
+      defaultTitle = "Success";
+    }
 
     return (
       <div
@@ -108,20 +123,36 @@ function renderCallout(block: any, index: string | number) {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Header bgColor="bg-white/90" />
-      
+
       <main className="grow">
         {/* Breadcrumbs */}
         <nav className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-4">
           <ol className="flex items-center space-x-2 text-[10px] font-bold uppercase tracking-widest text-stone-400">
             <li>
-              <Link href="/" className="hover:text-orange-600 transition-colors">Home</Link>
+              <Link
+                href="/"
+                className="hover:text-orange-600 transition-colors"
+              >
+                Home
+              </Link>
             </li>
-            <li><ChevronRight size={10} /></li>
             <li>
-              <Link href="/guides" className="hover:text-orange-600 transition-colors">Guides</Link>
+              <ChevronRight size={10} />
             </li>
-            <li><ChevronRight size={10} /></li>
-            <li className="text-stone-900 truncate max-w-[150px]">{guide.title}</li>
+            <li>
+              <Link
+                href="/guides"
+                className="hover:text-orange-600 transition-colors"
+              >
+                Guides
+              </Link>
+            </li>
+            <li>
+              <ChevronRight size={10} />
+            </li>
+            <li className="text-stone-900 truncate max-w-[150px]">
+              {guide.title}
+            </li>
           </ol>
         </nav>
 
@@ -141,7 +172,7 @@ function renderCallout(block: any, index: string | number) {
             <h1 className="text-4xl md:text-6xl font-serif font-bold text-stone-900 mb-8 leading-tight">
               {guide.title}
             </h1>
-            
+
             <p className="text-xl text-stone-500 font-medium leading-relaxed max-w-3xl">
               {guide.description}
             </p>
@@ -152,12 +183,12 @@ function renderCallout(block: any, index: string | number) {
         {guide.coverImage ? (
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
             <div className="rounded-4xl overflow-hidden shadow-2xl shadow-stone-200 border border-white">
-               <img 
-                src={guide.coverImage} 
+              <img
+                src={guide.coverImage}
                 alt={guide.title}
                 className="w-full h-auto max-h-[70vh] object-cover"
                 referrerPolicy="no-referrer"
-               />
+              />
             </div>
           </div>
         ) : (
@@ -170,49 +201,58 @@ function renderCallout(block: any, index: string | number) {
           {/* Outline / Sidebar */}
           <aside className="lg:w-72 shrink-0">
             <div className="sticky top-28 space-y-8">
-              {(guide.table_of_contents || guide.outline) && (guide.table_of_contents || guide.outline).length > 0 && (
-                <div className="bg-stone-50 rounded-3xl p-8 border border-stone-100">
-                  <h3 className="text-[10px] font-bold uppercase tracking-[0.25em] text-stone-400 mb-6">
-                    In This Guide
-                  </h3>
-                  <nav>
-                    <ul className="space-y-4">
-                      {(guide.table_of_contents || guide.outline).map((item: any, i: number) => {
-                        let displayTitle = "";
-                        let targetId = "";
+              {(guide.table_of_contents || guide.outline) &&
+                (guide.table_of_contents || guide.outline).length > 0 && (
+                  <div className="bg-stone-50 rounded-3xl p-8 border border-stone-100">
+                    <h3 className="text-[10px] font-bold uppercase tracking-[0.25em] text-stone-400 mb-6">
+                      In This Guide
+                    </h3>
+                    <nav>
+                      <ul className="space-y-4">
+                        {(guide.table_of_contents || guide.outline).map(
+                          (item: any, i: number) => {
+                            let displayTitle = "";
+                            let targetId = "";
 
-                        if (typeof item === "string") {
-                          const isSlug = item.includes("-");
-                          targetId = isSlug ? item : `section-${i}`;
-                          displayTitle = isSlug ? formatSectionTitle(item) : item;
-                        } else if (item && typeof item === "object") {
-                          displayTitle = item.title || "";
-                          targetId = item.anchor || `section-${i}`;
-                        }
-                        
-                        return (
-                          <li key={i}>
-                            <a 
-                              href={`#${targetId}`} 
-                              className="text-sm font-medium text-stone-600 hover:text-orange-600 transition-colors block leading-tight"
-                            >
-                              {displayTitle}
-                            </a>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </nav>
-                </div>
-              )}
-              
+                            if (typeof item === "string") {
+                              const isSlug = item.includes("-");
+                              targetId = isSlug ? item : `section-${i}`;
+                              displayTitle = isSlug
+                                ? formatSectionTitle(item)
+                                : item;
+                            } else if (item && typeof item === "object") {
+                              displayTitle = item.title || "";
+                              targetId = item.anchor || `section-${i}`;
+                            }
+
+                            return (
+                              <li key={i}>
+                                <a
+                                  href={`#${targetId}`}
+                                  className="text-sm font-medium text-stone-600 hover:text-orange-600 transition-colors block leading-tight"
+                                >
+                                  {displayTitle}
+                                </a>
+                              </li>
+                            );
+                          },
+                        )}
+                      </ul>
+                    </nav>
+                  </div>
+                )}
+
               <div className="bg-orange-600 rounded-3xl p-8 text-white">
-                <h3 className="text-lg font-serif font-bold mb-3">Newsletter</h3>
-                <p className="text-orange-100 text-xs leading-relaxed mb-6">Master technical cooking with our weekly deep-dives.</p>
+                <h3 className="text-lg font-serif font-bold mb-3">
+                  Newsletter
+                </h3>
+                <p className="text-orange-100 text-xs leading-relaxed mb-6">
+                  Master technical cooking with our weekly deep-dives.
+                </p>
                 <form className="space-y-3">
-                  <input 
-                    type="email" 
-                    placeholder="Email address" 
+                  <input
+                    type="email"
+                    placeholder="Email address"
                     className="w-full bg-orange-700 border-none rounded-xl px-4 py-3 text-xs placeholder:text-orange-300 focus:ring-2 focus:ring-white/20"
                   />
                   <button className="w-full bg-white text-orange-600 font-bold py-3 rounded-xl text-[10px] uppercase tracking-widest hover:bg-orange-50 transition-colors">
@@ -243,7 +283,7 @@ function renderCallout(block: any, index: string | number) {
                     const toc = guide.table_of_contents || [];
                     const outline = guide.outline || [];
                     const sectionId = outline.indexOf(block.text);
-                    
+
                     // Priority: block.anchor -> table_of_contents match -> index-based section
                     let finalId = block.anchor;
                     if (!finalId && sectionId !== -1) {
@@ -268,7 +308,9 @@ function renderCallout(block: any, index: string | number) {
                     );
                   }
                   if (block.type === "image") {
-                    const src = block.src || (block.reference && guide.images?.[block.reference]);
+                    const src =
+                      block.src ||
+                      (block.reference && guide.images?.[block.reference]);
                     if (src) {
                       return (
                         <div key={index} className="my-14 relative group">
@@ -280,19 +322,23 @@ function renderCallout(block: any, index: string | number) {
                           />
                           {block.caption && (
                             <p className="mt-4 text-center text-xs text-stone-400 font-medium italic">
-                                {block.caption}
+                              {block.caption}
                             </p>
                           )}
                         </div>
                       );
                     }
-                    
+
                     return (
                       <div key={index} className="my-14">
-                        <ImagePlaceholder alt={block.alt || block.reference || "Guide illustration"} />
+                        <ImagePlaceholder
+                          alt={
+                            block.alt || block.reference || "Guide illustration"
+                          }
+                        />
                         {block.caption && (
                           <p className="mt-4 text-center text-xs text-stone-400 font-medium italic">
-                              {block.caption}
+                            {block.caption}
                           </p>
                         )}
                       </div>
@@ -304,19 +350,26 @@ function renderCallout(block: any, index: string | number) {
                   if (block.type === "list") {
                     const ListTag = block.style === "ordered" ? "ol" : "ul";
                     return (
-                      <ListTag 
-                        key={index} 
+                      <ListTag
+                        key={index}
                         className={`my-10 space-y-4 ${block.style === "ordered" ? "list-decimal pl-8" : "list-disc pl-8"} text-stone-700 font-medium`}
                       >
                         {block.items.map((item: string, i: number) => (
-                          <li key={i} className="pl-2 leading-relaxed" dangerouslySetInnerHTML={{ __html: item }} />
+                          <li
+                            key={i}
+                            className="pl-2 leading-relaxed"
+                            dangerouslySetInnerHTML={{ __html: item }}
+                          />
                         ))}
                       </ListTag>
                     );
                   }
                   if (block.type === "divider") {
                     return (
-                      <div key={index} className="my-20 flex items-center justify-center gap-6">
+                      <div
+                        key={index}
+                        className="my-20 flex items-center justify-center gap-6"
+                      >
                         <div className="h-px w-16 bg-stone-100" />
                         <div className="w-1.5 h-1.5 rounded-full bg-orange-200" />
                         <div className="h-px w-16 bg-stone-100" />
@@ -325,7 +378,10 @@ function renderCallout(block: any, index: string | number) {
                   }
                   if (block.type === "quote") {
                     return (
-                      <blockquote key={index} className="my-16 border-l-4 border-orange-500 pl-10 py-4 italic font-serif text-3xl text-stone-500 leading-relaxed bg-stone-50/50 rounded-r-3xl">
+                      <blockquote
+                        key={index}
+                        className="my-16 border-l-4 border-orange-500 pl-10 py-4 italic font-serif text-3xl text-stone-500 leading-relaxed bg-stone-50/50 rounded-r-3xl"
+                      >
                         "{block.text}"
                         {block.author && (
                           <footer className="mt-6 text-[10px] font-sans font-bold uppercase tracking-[0.25em] text-stone-400 not-italic">
@@ -339,22 +395,29 @@ function renderCallout(block: any, index: string | number) {
                 })
               ) : (
                 <div className="py-20 text-center">
-                   <p className="text-xl text-stone-400 italic">Detailed guide content is currently being processed. Check back soon!</p>
+                  <p className="text-xl text-stone-400 italic">
+                    Detailed guide content is currently being processed. Check
+                    back soon!
+                  </p>
                 </div>
               )}
             </div>
 
             {/* Guide footer info */}
             <div className="mt-20 pt-10 border-t border-stone-100">
-               <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 mb-2">Author</h4>
-                    <p className="text-sm font-bold text-stone-900 font-serif italic">The Savory Bites Culinary Team</p>
-                  </div>
-                  <div className="flex gap-4">
-                     {/* Social buttons placeholder */}
-                  </div>
-               </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 mb-2">
+                    Author
+                  </h4>
+                  <p className="text-sm font-bold text-stone-900 font-serif italic">
+                    The Savory Bites Culinary Team
+                  </p>
+                </div>
+                <div className="flex gap-4">
+                  {/* Social buttons placeholder */}
+                </div>
+              </div>
             </div>
           </article>
         </div>

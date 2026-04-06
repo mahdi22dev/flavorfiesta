@@ -8,9 +8,12 @@ function cdnUrl(key: string | null | undefined): string | null {
   return `${ASSETS_CDN}/${key.replace(/^\//, "")}`;
 }
 
-async function fetchJsonFromCdn(key: string): Promise<any> {
-  const url = `${ASSETS_CDN}/${key.replace(/^\//, "")}`;
-  console.log("[CDN] Fetching Guide JSON:", url);
+async function fetchJsonFromCdn(slug: string): Promise<any> {
+  // Strip any existing prefixes (like recipes/ or pillar/) from the slug before building the CDN path
+  const baseSlug = slug.replace(/^(recipes\/|pillar\/)/, "").replace(/^\//, "");
+  const fileName = baseSlug.endsWith(".json") ? baseSlug : `${baseSlug}.json`;
+  const url = `${ASSETS_CDN}/pillar/${fileName}`;
+  console.log("[CDN] Fetching Guide JSON (Slug-based):", url);
 
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) {
@@ -27,6 +30,11 @@ export async function GET(
 ) {
   try {
     const { slug } = await params;
+    console.log(slug);
+
+    const baseSlug = slug
+      .replace(/^(recipes\/|pillar\/|guides\/)/, "")
+      .replace(/^\//, "");
 
     // 1. Fetch metadata from D1 for the pillar/guide
     const rows = await queryD1<{
@@ -40,8 +48,8 @@ export async function GET(
     }>(
       `SELECT id, title, slug, description, cover_image as coverImage, category, s3_key
        FROM pillars
-       WHERE slug = ? LIMIT 1`,
-      [slug],
+       WHERE slug = ? OR slug = ? LIMIT 1`,
+      [slug, baseSlug],
     );
 
     if (!rows.length) {
@@ -53,19 +61,9 @@ export async function GET(
     // 2. Resolve cover image from CDN (pillars table uses cover_image directly)
     const coverImageUrl = cdnUrl(guide.coverImage);
 
-    // 3. Fetch full guide content (JSON) from CDN using s3_key
-    if (!guide.s3_key) {
-        return NextResponse.json({
-            ...guide,
-            coverImage: coverImageUrl,
-            content: [],
-            sections: [],
-            message: "No detailed content available for this guide yet."
-        });
-    }
-
+    // 3. Fetch full guide content (JSON) from CDN using slug
     try {
-      const data = await fetchJsonFromCdn(guide.s3_key);
+      const data = await fetchJsonFromCdn(slug);
 
       return NextResponse.json({
         ...guide,
