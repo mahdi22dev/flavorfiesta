@@ -177,10 +177,18 @@ function renderCallout(block: any, index: string | number) {
                   </h3>
                   <nav>
                     <ul className="space-y-4">
-                      {(guide.table_of_contents || guide.outline).map((item: string, i: number) => {
-                        const isSlug = item.includes("-");
-                        const targetId = isSlug ? item : `section-${i}`;
-                        const displayTitle = isSlug ? formatSectionTitle(item) : item;
+                      {(guide.table_of_contents || guide.outline).map((item: any, i: number) => {
+                        let displayTitle = "";
+                        let targetId = "";
+
+                        if (typeof item === "string") {
+                          const isSlug = item.includes("-");
+                          targetId = isSlug ? item : `section-${i}`;
+                          displayTitle = isSlug ? formatSectionTitle(item) : item;
+                        } else if (item && typeof item === "object") {
+                          displayTitle = item.title || "";
+                          targetId = item.anchor || `section-${i}`;
+                        }
                         
                         return (
                           <li key={i}>
@@ -237,7 +245,17 @@ function renderCallout(block: any, index: string | number) {
                     const sectionId = outline.indexOf(block.text);
                     
                     // Priority: block.anchor -> table_of_contents match -> index-based section
-                    const finalId = block.anchor || (sectionId !== -1 ? `section-${sectionId}` : undefined);
+                    let finalId = block.anchor;
+                    if (!finalId && sectionId !== -1) {
+                      const tocItem = toc[sectionId];
+                      if (tocItem && typeof tocItem === "object") {
+                        finalId = tocItem.anchor;
+                      } else if (typeof tocItem === "string") {
+                        finalId = tocItem;
+                      } else {
+                        finalId = `section-${sectionId}`;
+                      }
+                    }
 
                     return (
                       <h2
@@ -282,6 +300,40 @@ function renderCallout(block: any, index: string | number) {
                   }
                   if (block.type === "callout") {
                     return renderCallout(block, index);
+                  }
+                  if (block.type === "list") {
+                    const ListTag = block.style === "ordered" ? "ol" : "ul";
+                    return (
+                      <ListTag 
+                        key={index} 
+                        className={`my-10 space-y-4 ${block.style === "ordered" ? "list-decimal pl-8" : "list-disc pl-8"} text-stone-700 font-medium`}
+                      >
+                        {block.items.map((item: string, i: number) => (
+                          <li key={i} className="pl-2 leading-relaxed" dangerouslySetInnerHTML={{ __html: item }} />
+                        ))}
+                      </ListTag>
+                    );
+                  }
+                  if (block.type === "divider") {
+                    return (
+                      <div key={index} className="my-20 flex items-center justify-center gap-6">
+                        <div className="h-px w-16 bg-stone-100" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-orange-200" />
+                        <div className="h-px w-16 bg-stone-100" />
+                      </div>
+                    );
+                  }
+                  if (block.type === "quote") {
+                    return (
+                      <blockquote key={index} className="my-16 border-l-4 border-orange-500 pl-10 py-4 italic font-serif text-3xl text-stone-500 leading-relaxed bg-stone-50/50 rounded-r-3xl">
+                        "{block.text}"
+                        {block.author && (
+                          <footer className="mt-6 text-[10px] font-sans font-bold uppercase tracking-[0.25em] text-stone-400 not-italic">
+                            — {block.author}
+                          </footer>
+                        )}
+                      </blockquote>
+                    );
                   }
                   return null;
                 })
