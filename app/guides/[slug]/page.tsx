@@ -97,6 +97,14 @@ function renderCallout(block: any, index: string | number) {
     );
   }
 
+  // Helper to turn slugs into readable titles
+  function formatSectionTitle(slug: string) {
+    return slug
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Header bgColor="bg-white/90" />
@@ -162,23 +170,29 @@ function renderCallout(block: any, index: string | number) {
           {/* Outline / Sidebar */}
           <aside className="lg:w-72 shrink-0">
             <div className="sticky top-28 space-y-8">
-              {guide.outline && guide.outline.length > 0 && (
+              {(guide.table_of_contents || guide.outline) && (guide.table_of_contents || guide.outline).length > 0 && (
                 <div className="bg-stone-50 rounded-3xl p-8 border border-stone-100">
                   <h3 className="text-[10px] font-bold uppercase tracking-[0.25em] text-stone-400 mb-6">
                     In This Guide
                   </h3>
                   <nav>
                     <ul className="space-y-4">
-                      {guide.outline.map((item: string, i: number) => (
-                        <li key={i}>
-                          <a 
-                            href={`#section-${i}`} 
-                            className="text-sm font-medium text-stone-600 hover:text-orange-600 transition-colors block leading-tight"
-                          >
-                            {item}
-                          </a>
-                        </li>
-                      ))}
+                      {(guide.table_of_contents || guide.outline).map((item: string, i: number) => {
+                        const isSlug = item.includes("-");
+                        const targetId = isSlug ? item : `section-${i}`;
+                        const displayTitle = isSlug ? formatSectionTitle(item) : item;
+                        
+                        return (
+                          <li key={i}>
+                            <a 
+                              href={`#${targetId}`} 
+                              className="text-sm font-medium text-stone-600 hover:text-orange-600 transition-colors block leading-tight"
+                            >
+                              {displayTitle}
+                            </a>
+                          </li>
+                        );
+                      })}
                     </ul>
                   </nav>
                 </div>
@@ -217,11 +231,18 @@ function renderCallout(block: any, index: string | number) {
                     );
                   }
                   if (block.type === "heading") {
-                    const sectionId = (guide.outline as string[] || []).indexOf(block.text);
+                    // Try to match the block text against table_of_contents or use anchor if provided
+                    const toc = guide.table_of_contents || [];
+                    const outline = guide.outline || [];
+                    const sectionId = outline.indexOf(block.text);
+                    
+                    // Priority: block.anchor -> table_of_contents match -> index-based section
+                    const finalId = block.anchor || (sectionId !== -1 ? `section-${sectionId}` : undefined);
+
                     return (
                       <h2
                         key={index}
-                        id={sectionId !== -1 ? `section-${sectionId}` : undefined}
+                        id={finalId}
                         className="text-3xl font-serif font-bold text-stone-900 mt-16 mb-8 scroll-mt-28"
                       >
                         {block.text}

@@ -6,6 +6,7 @@ import { Clock, Users, Timer } from "lucide-react";
 import { headers } from "next/headers";
 import { queryD1 } from "@/db/db";
 import Link from "next/link";
+import FloatingJumpButton from "../../../components/FloatingJumpButton";
 
 const ASSETS_CDN = "https://assets.shortinx.xyz";
 function cdnUrl(key: string | null | undefined): string | null {
@@ -66,6 +67,7 @@ export default async function RecipePost({
     content: data.content || [],
     callouts: data.callouts || [],
     images: data.images || {},
+    table_of_contents: data.table_of_contents || [],
   };
 
   const suggested = (suggestedRows as any[]).map((r) => ({
@@ -81,7 +83,7 @@ export default async function RecipePost({
         {/* Hero Section */}
         <section className="pt-14 pb-8 bg-stone-50 border-b border-stone-200">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 className="text-3xl md:text-4xl font-serif font-bold text-stone-900 mb-4 leading-tight">
+            <h1 className="text-4xl md:text-6xl font-serif font-black text-stone-900 mb-6 leading-tight">
               {post.title}
             </h1>
             <p className="text-base text-stone-500 max-w-xl mx-auto mb-6 leading-relaxed">
@@ -120,14 +122,15 @@ export default async function RecipePost({
               </div>
             </div>
 
-            {/* Jump to Recipe button */}
+            {/* Jump to Recipe button (Primary Hero Button) */}
             <a
+              id="hero-jump-button"
               href="#recipe-card"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-full shadow-md shadow-orange-200 transition-all duration-200 hover:scale-105 text-xs uppercase tracking-widest"
+              className="inline-flex items-center gap-2 px-6 py-3.5 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-full shadow-md shadow-orange-200 transition-all duration-200 hover:scale-105 text-xs uppercase tracking-widest mt-4"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="w-3.5 h-3.5"
+                className="w-4 h-4"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -141,6 +144,9 @@ export default async function RecipePost({
             </a>
           </div>
         </section>
+
+        {/* Floating Scroll Triggered Button */}
+        <FloatingJumpButton targetId="recipe-card" />
 
         {/* ── You May Also Like ── */}
         {suggested.length > 0 && (
@@ -223,6 +229,7 @@ export default async function RecipePost({
           callouts={post.callouts}
           images={post.images}
           suggested={suggested}
+          tableOfContents={post.table_of_contents}
         />
       </main>
       <Footer />
