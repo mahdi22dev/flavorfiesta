@@ -46,11 +46,12 @@ export async function GET(
       total_time: string;
       s3_key: string;
       quality_score: string;
+      tags: string[];
     }>(
       `SELECT 
         r.id, r.title, r.slug, r.description, 
         ri.hero_wide, ri.macro_texture, ri.ingredients_flatlay, ri.whole_dish,
-        r.category, r.servings, r.prep_time, r.cook_time, r.total_time, r.s3_key, r.quality_score
+        r.category, r.servings, r.prep_time, r.cook_time, r.total_time, r.s3_key, r.quality_score, r.tags
        FROM recipes r
        LEFT JOIN recipe_images ri ON r.id = ri.recipe_id
        WHERE r.slug = ? LIMIT 1`,
@@ -86,6 +87,7 @@ export async function GET(
         prepTime: recipe.prep_time,
         cookTime: recipe.cook_time,
         totalTime: recipe.total_time,
+        tags: recipe.tags || [],
       });
     } catch (cdnErr) {
       console.error("[CDN] Failed to fetch recipe JSON:", cdnErr);

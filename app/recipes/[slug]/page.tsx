@@ -51,6 +51,13 @@ export default async function RecipePost({
 
   const data = await response.json();
 
+  // Defensive parsing for JSON strings from D1
+  const safeTags = Array.isArray(data.tags)
+    ? data.tags
+    : typeof data.tags === "string"
+      ? JSON.parse(data.tags)
+      : [];
+
   const post = {
     title: data.title,
     description: data.description,
@@ -83,6 +90,16 @@ export default async function RecipePost({
         {/* Hero Section */}
         <section className="pt-14 pb-8 bg-stone-50 border-b border-stone-200">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
+              <span className="px-3 py-1 bg-orange-600 text-white text-[10px] font-bold uppercase tracking-widest rounded-full">
+                {post.category}
+              </span>
+              {Array.isArray(safeTags) && safeTags.slice(0, 3).map((tag: string) => (
+                <span key={tag} className="px-3 py-1 border border-stone-200 text-stone-500 text-[10px] font-bold uppercase tracking-widest rounded-full">
+                  #{tag}
+                </span>
+              ))}
+            </div>
             <h1 className="text-4xl md:text-6xl font-serif font-black text-stone-900 mb-6 leading-tight">
               {post.title}
             </h1>

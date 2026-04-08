@@ -24,3 +24,14 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans);
 }
+
+/* Force links in blog content to be Light Blue and Strong */
+.prose a {
+  color: #0284c7 !important;
+  font-weight: 700 !important;
+  text-decoration: none;
+}
+
+.prose a:hover {
+  text-decoration: underline;
+}

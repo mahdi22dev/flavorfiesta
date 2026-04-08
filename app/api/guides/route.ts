@@ -7,22 +7,39 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search") || "";
     const category = searchParams.get("category") || "";
 
-    let query = "SELECT * FROM pillars WHERE 1=1";
+    const ASSETS_CDN = "https://assets.shortinx.xyz";
+    const cdnUrl = (key: string | null | undefined) => {
+      if (!key) return null;
+      return `${ASSETS_CDN}/${key.replace(/^\//, "")}`;
+    };
+
+    let query = `
+      SELECT p.id, p.title, p.slug, p.description, p.cover_image as cover_image, p.category, 
+             ri.hero_wide as hero_wide
+      FROM pillars p
+      LEFT JOIN recipe_images ri ON p.id = ri.pillar_id AND ri.recipe_id IS NULL
+      WHERE 1=1
+    `;
     const params: any[] = [];
 
     if (search) {
-      query += " AND (title LIKE ? OR description LIKE ?)";
+      query += " AND (p.title LIKE ? OR p.description LIKE ?)";
       params.push(`%${search}%`, `%${search}%`);
     }
 
     if (category && category !== "Categories") {
-      query += " AND category = ?";
+      query += " AND p.category = ?";
       params.push(category);
     }
 
-    query += " ORDER BY created_at DESC";
+    query += " ORDER BY p.created_at DESC";
 
-    const data = await queryD1(query, params);
+    const rawData = await queryD1<any>(query, params);
+
+    const data = rawData.map((row) => ({
+      ...row,
+      coverImage: cdnUrl(row.cover_image || row.hero_wide),
+    }));
 
     return NextResponse.json({ data });
   } catch (error) {

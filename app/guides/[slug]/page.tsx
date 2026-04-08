@@ -35,6 +35,13 @@ export default async function GuidePost({
 
   const guide = await response.json();
 
+  // Defensive parsing for JSON strings from D1
+  const safeTags = Array.isArray(guide.tags)
+    ? guide.tags
+    : typeof guide.tags === "string"
+      ? JSON.parse(guide.tags)
+      : [];
+
   function ImagePlaceholder({
     alt,
     className = "",
@@ -160,10 +167,15 @@ export default async function GuidePost({
         <section className="pb-16 border-b border-stone-100">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="mb-6 flex flex-wrap items-center gap-3">
-              <span className="px-3 py-1 rounded-full bg-orange-100 text-orange-600 text-[10px] font-bold uppercase tracking-widest">
+              <span className="px-3 py-1 rounded-full bg-orange-600 text-white text-[10px] font-bold uppercase tracking-widest">
                 {guide.category || "Culinary Guide"}
               </span>
-              <div className="flex items-center gap-1.5 text-stone-400 text-[10px] font-bold uppercase tracking-widest">
+              {Array.isArray(safeTags) && safeTags.slice(0, 3).map((tag: string) => (
+                <span key={tag} className="px-3 py-1 border border-stone-200 text-stone-500 text-[10px] font-bold uppercase tracking-widest rounded-full">
+                  #{tag}
+                </span>
+              ))}
+              <div className="flex items-center gap-1.5 text-stone-400 text-[10px] font-bold uppercase tracking-widest ml-auto">
                 <Calendar size={12} />
                 <span>Last Updated 2024</span>
               </div>
@@ -266,7 +278,7 @@ export default async function GuidePost({
           {/* Main Content Area */}
           <article className="flex-1 min-w-0 max-w-3xl">
             {/* Table of Contents / Outline Section */}
-            <div className="prose prose-stone lg:prose-lg max-w-none prose-headings:font-serif prose-headings:font-bold prose-headings:text-stone-900 prose-a:text-orange-600 prose-a:no-underline hover:prose-a:underline">
+            <div className="prose prose-stone lg:prose-lg max-w-none prose-headings:font-serif prose-headings:font-bold prose-headings:text-stone-900 prose-a:text-sky-600 prose-a:font-bold prose-a:no-underline hover:prose-a:underline">
               {guide.content && guide.content.length > 0 ? (
                 guide.content.map((block: any, index: number) => {
                   if (block.type === "paragraph") {

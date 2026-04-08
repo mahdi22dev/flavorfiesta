@@ -236,7 +236,7 @@ export default function RecipeClientSection({
           </section>
 
           {/* ── Blog Content ── */}
-          <article className="prose prose-stone lg:prose-lg max-w-none prose-img:rounded-3xl prose-img:shadow-2xl prose-headings:font-serif prose-headings:font-bold prose-headings:text-stone-900 text-stone-700 prose-a:text-orange-600 prose-a:no-underline hover:prose-a:underline">
+          <article className="prose prose-stone lg:prose-lg max-w-none prose-img:rounded-3xl prose-img:shadow-2xl prose-headings:font-serif prose-headings:font-bold prose-headings:text-stone-900 text-stone-700 prose-a:text-sky-600 prose-a:font-bold prose-a:no-underline hover:prose-a:underline">
             {content.map((block: any, index: number) => {
               if (block.type === "paragraph") {
                 return (

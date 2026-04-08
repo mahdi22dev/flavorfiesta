@@ -16,7 +16,7 @@ export type QualityScore = (typeof QUALITY_SCORES)[number];
 export const pillars = sqliteTable("pillars", {
   id: integer("id").primaryKey({ autoIncrement: true }),
   coverImage: text("cover_image"),
-  slug: text("slug").notNull().unique(),
+  slug: text("slug").notNull(),
   title: text("title").notNull(),
   description: text("description").notNull(),
   haveContent: integer("have_content", { mode: "boolean" }).default(false),
@@ -26,6 +26,9 @@ export const pillars = sqliteTable("pillars", {
     .default(sql`'[]'`),
   s3_key: text("s3_key"),
   category: text("category").default("General"),
+  tags: text("tags", { mode: "json" })
+    .$type<string[]>()
+    .default(sql`'[]'`),
 });
 
 // 2. The Spoke: Recipes Table (Cleaned up, images moved to relational table)
@@ -54,18 +57,28 @@ export const recipes = sqliteTable("recipes", {
   qualityScore: text("quality_score").$type<QualityScore>().default("pending"), // Classifies the quality of the generated recipe
   isIndexed: integer("is_indexed", { mode: "boolean" }).default(false),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+  tags: text("tags", { mode: "json" })
+    .$type<string[]>()
+    .default(sql`'[]'`),
 });
 
 export const recipeImages = sqliteTable("recipe_images", {
   id: integer("id").primaryKey({ autoIncrement: true }),
-  recipeId: integer("recipe_id")
-    .references(() => recipes.id)
-    .notNull(),
+
+  // Make these optional so one table handles both
+  recipeId: integer("recipe_id").references(() => recipes.id),
+  pillarId: integer("pillar_id").references(() => pillars.id),
+
+  // Image URLs
   heroWide: text("hero_wide"),
   macroTexture: text("macro_texture"),
   ingredientsFlatlay: text("ingredients_flatlay"),
   wholeDish: text("whole_dish"),
-  // sliceOrBite: text("slice_or_bite"),
+
+  // Prompts for AI tracking
+  heroWidePrompt: text("hero_wide_prompt"),
+  macroTexturePrompt: text("macro_texture_prompt"),
+  ingredientsFlatlayPrompt: text("ingredients_flatlay_prompt"),
 
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });

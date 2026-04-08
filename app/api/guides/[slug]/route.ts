@@ -45,10 +45,14 @@ export async function GET(
       coverImage: string;
       category: string;
       s3_key: string;
+      tags: string[];
+      heroWide: string | null;
     }>(
-      `SELECT id, title, slug, description, cover_image as coverImage, category, s3_key
-       FROM pillars
-       WHERE slug = ? OR slug = ? LIMIT 1`,
+      `SELECT p.id, p.title, p.slug, p.description, p.cover_image as coverImage, p.category, p.s3_key, p.tags,
+              ri.hero_wide as heroWide
+       FROM pillars p
+       LEFT JOIN recipe_images ri ON p.id = ri.pillar_id AND ri.recipe_id IS NULL
+       WHERE p.slug = ? OR p.slug = ? LIMIT 1`,
       [slug, baseSlug],
     );
 
@@ -58,17 +62,44 @@ export async function GET(
 
     const guide = rows[0];
 
-    // 2. Resolve cover image from CDN (pillars table uses cover_image directly)
-    const coverImageUrl = cdnUrl(guide.coverImage);
+    // 2. Resolve cover image from CDN (priority: recipe_images.hero_wide > pillars.cover_image)
+    const coverImageUrl = cdnUrl(guide.heroWide || guide.coverImage);
 
-    // 3. Fetch full guide content (JSON) from CDN using slug
+    // 3. Fetch all associated recipes and their hero images to populate guide.images
+    const recipesRows = await queryD1<{
+      slug: string;
+      heroWide: string | null;
+    }>(
+      `SELECT r.slug, ri.hero_wide as heroWide
+       FROM recipes r
+       LEFT JOIN recipe_images ri ON r.id = ri.recipe_id
+       WHERE r.pillar_id = ?`,
+      [guide.id],
+    );
+
+    const recipeImagesMap = recipesRows.reduce(
+      (acc, row) => {
+        if (row.heroWide) {
+          acc[row.slug] = cdnUrl(row.heroWide);
+        }
+        return acc;
+      },
+      {} as Record<string, string | null>,
+    );
+
+    // 4. Fetch full guide content (JSON) from CDN using slug
     try {
       const data = await fetchJsonFromCdn(slug);
 
+      // Merge metadata, CDN content, and resolved images
       return NextResponse.json({
         ...guide,
         ...data,
         coverImage: coverImageUrl,
+        images: {
+          ...(data.images || {}),
+          ...recipeImagesMap,
+        },
       });
     } catch (cdnErr) {
       console.error("[CDN] Failed to fetch guide JSON:", cdnErr);
@@ -76,6 +107,7 @@ export async function GET(
         {
           ...guide,
           coverImage: coverImageUrl,
+          images: recipeImagesMap,
           content: [],
           sections: [],
           error: `Content fetch failed: ${(cdnErr as Error).message}`,
