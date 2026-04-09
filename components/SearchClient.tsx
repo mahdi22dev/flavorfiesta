@@ -2,29 +2,17 @@
 
 import { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
-import { Search as SearchIcon, ChevronDown, Clock, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import {
+  Search as SearchIcon,
+  ChevronDown,
+  Clock,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+} from "lucide-react";
 import ResponsiveImage from "./ResponsiveImage";
 import { useSearchParams } from "next/navigation";
-
-interface Recipe {
-  id: number;
-  title: string;
-  slug: string;
-  description: string;
-  category: string;
-  coverImage: string;
-  prepTime: string;
-  cookTime: string;
-  totalTime: string;
-  servings: number;
-}
-
-interface PaginationData {
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-}
+import { PaginationData, Recipe } from "@/lib/types";
 
 function SearchContent() {
   const searchParams = useSearchParams();
@@ -74,23 +62,25 @@ function SearchContent() {
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchRecipes(1, searchQuery, category);
-    }, 300); // Debounce search
+    }, 500); // Debounce search
 
     return () => clearTimeout(timer);
   }, [searchQuery, category, fetchRecipes]);
 
-  // Fetch categories (could be a separate API but we'll infer from results or have a static list)
+  // Fetch dynamic categories
   useEffect(() => {
-    // In a real app, this would be a separate API call like /api/categories
-    // For now, we use a sensible default or fetch all once
-    setCategories([
-      "Breakfast",
-      "Lunch",
-      "Dinner",
-      "Dessert",
-      "Vegetarian",
-      "Healthy",
-    ]);
+    async function fetchCategories() {
+      try {
+        const response = await fetch("/api/categories");
+        const result = await response.json();
+        if (result.categories) {
+          setCategories(result.categories);
+        }
+      } catch (error) {
+        console.error("Failed to fetch categories:", error);
+      }
+    }
+    fetchCategories();
   }, []);
 
   const handlePageChange = (newPage: number) => {
@@ -99,8 +89,12 @@ function SearchContent() {
     }
   };
 
-  const formatDuration = (d: string) =>
-    d?.replace("PT", "").replace("M", " mins").replace("H", " hours ") || "N/A";
+  const formatDuration = (d: string) => {
+    if (!d || d === "N/A") return "N/A";
+    let formatted = d.replace("PT", "").replace("H", " hrs ").replace("M", " mins").trim();
+    if (formatted === "0 mins" || formatted === "0 hrs" || !formatted) return "0 mins";
+    return formatted;
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -109,47 +103,45 @@ function SearchContent() {
         <div className="relative inline-block px-8 py-4">
           <div className="absolute inset-0 bg-stone-100/60 -z-10 rounded-lg"></div>
           <h1 className="text-4xl md:text-6xl font-serif font-bold text-stone-900 leading-tight">
-            Explore Our Recipes<br />
-            <span className="font-sans font-normal text-stone-700">created by our </span>
-            <span className="italic font-serif font-light text-orange-600">maestro</span>
+            Explore Our Recipes
+            <br />
+            <span className="font-sans font-normal text-stone-700">
+              created by our{" "}
+            </span>
+            <span className="italic font-serif font-light text-orange-600">
+              maestro
+            </span>
           </h1>
         </div>
       </div>
 
-      {/* Search Controls */}
-      <div className="max-w-3xl mx-auto mb-20 space-y-6">
-        <div className="relative group">
-          <SearchIcon
-            className="absolute left-6 top-1/2 -translate-y-1/2 text-stone-400 group-focus-within:text-orange-500 transition-colors"
-            size={22}
-          />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search recipes..."
-            className="w-full pl-16 pr-8 py-5 rounded-2xl border border-stone-200 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 shadow-sm text-xl transition-all"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="relative">
-            <select className="w-full appearance-none bg-white border border-stone-200 rounded-2xl px-6 py-4.5 pr-12 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 text-stone-600 font-medium cursor-pointer shadow-sm">
-              <option>Popular</option>
-              <option>Newest</option>
-              <option>Top Rated</option>
-            </select>
-            <ChevronDown
-              className="absolute right-6 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none"
-              size={20}
-            />
+      {/* Search Header */}
+      <div className="mb-12 border-b border-stone-100 pb-12">
+        <div className="flex flex-col md:flex-row gap-6 items-end justify-between">
+          <div className="flex-1 w-full max-w-2xl">
+            <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-orange-600 mb-6 px-1">
+              Refine Search
+            </h2>
+            <div className="relative group">
+              <SearchIcon
+                className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-300 group-focus-within:text-orange-500 transition-colors"
+                size={20}
+              />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search recipes..."
+                className="w-full pl-14 pr-6 py-4 rounded-2xl bg-stone-50 border-none focus:bg-white focus:ring-4 focus:ring-orange-500/10 shadow-sm transition-all text-stone-900"
+              />
+            </div>
           </div>
 
-          <div className="relative">
+          <div className="relative w-full md:w-64">
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="w-full appearance-none bg-white border border-stone-200 rounded-2xl px-6 py-4.5 pr-12 focus:outline-none focus:ring-4 focus:ring-orange-500/10 focus:border-orange-500 text-stone-600 font-medium cursor-pointer shadow-sm hover:border-stone-300 transition-colors"
+              className="w-full appearance-none bg-stone-50 border-none rounded-2xl px-6 py-4 pr-12 focus:bg-white focus:ring-4 focus:ring-orange-500/10 text-stone-600 font-medium cursor-pointer shadow-sm transition-all"
             >
               <option>Categories</option>
               {categories.map((cat) => (
@@ -159,8 +151,8 @@ function SearchContent() {
               ))}
             </select>
             <ChevronDown
-              className="absolute right-6 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none"
-              size={20}
+              className="absolute right-5 top-1/2 -translate-y-1/2 text-stone-300 pointer-events-none"
+              size={18}
             />
           </div>
         </div>
@@ -210,14 +202,36 @@ function SearchContent() {
               <p className="text-stone-500 text-sm line-clamp-2 mb-6 flex-grow">
                 {recipe.description}
               </p>
-              <div className="flex items-center justify-between pt-6 border-t border-stone-50 text-stone-400 text-xs font-bold uppercase tracking-widest">
-                <div className="flex items-center gap-2">
-                  <Clock size={16} className="text-orange-500" />
-                  <span>{recipe.prepTime || "15 mins"}</span>
+              <div className="flex flex-col gap-3 pt-6 border-t border-stone-50">
+                <div className="flex items-center justify-between text-stone-400 text-[10px] font-bold uppercase tracking-widest">
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-stone-300">Prep:</span>
+                      <span className="text-stone-600">
+                        {recipe.prepTime ? formatDuration(recipe.prepTime) : "15m"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 border-l border-stone-100 pl-4">
+                      <span className="text-stone-300">Cook:</span>
+                      <span className="text-stone-600">
+                        {recipe.cookTime && formatDuration(recipe.cookTime) !== "0 mins" 
+                          ? formatDuration(recipe.cookTime) 
+                          : "No-cook"}
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <span className="text-orange-600 group-hover:translate-x-1 transition-transform">
-                  View Recipe →
-                </span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <Clock size={14} className="text-orange-500" />
+                    <span className="text-xs font-bold text-stone-900">
+                      {recipe.totalTime ? formatDuration(recipe.totalTime) : "35 mins"}
+                    </span>
+                  </div>
+                  <span className="text-orange-600 text-xs font-bold uppercase tracking-widest group-hover:translate-x-1 transition-transform">
+                    View Recipe →
+                  </span>
+                </div>
               </div>
             </div>
           </Link>
@@ -307,7 +321,13 @@ export default function SearchClient({
   initialRecipes?: any[];
 }) {
   return (
-    <Suspense fallback={<div className="flex justify-center p-20"><Loader2 className="animate-spin text-orange-600" size={48} /></div>}>
+    <Suspense
+      fallback={
+        <div className="flex justify-center p-20">
+          <Loader2 className="animate-spin text-orange-600" size={48} />
+        </div>
+      }
+    >
       <SearchContent />
     </Suspense>
   );

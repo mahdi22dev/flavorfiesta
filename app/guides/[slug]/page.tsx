@@ -127,8 +127,34 @@ export default async function GuidePost({
       .join(" ");
   }
 
+  const jsonLd = {
+    "@context": "https://schema.org/",
+    "@type": "Recipe",
+    "name": guide.title,
+    "image": guide.coverImage ? [guide.coverImage] : [],
+    "author": {
+      "@type": "Person",
+      "name": "The Savory Bites Culinary Team"
+    },
+    "datePublished": "2024-01-01", 
+    "description": guide.description,
+    "keywords": Array.isArray(safeTags) ? safeTags.join(", ") : "",
+    "recipeCategory": guide.category || "Culinary Guide",
+    "recipeIngredient": [],
+    "recipeInstructions": (guide.content || [])
+      .filter((b: any) => b.type === "paragraph" && typeof b.text === "string")
+      .map((step: any) => ({
+        "@type": "HowToStep",
+        "text": step.text.replace(/<[^>]*>?/gm, "")
+      }))
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Header bgColor="bg-white/90" />
 
       <main className="grow">

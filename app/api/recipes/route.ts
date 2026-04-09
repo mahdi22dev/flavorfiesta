@@ -52,9 +52,10 @@ export async function GET(request: NextRequest) {
       category: string;
       servings: number;
       prepTime: string;
+      cookTime: string;
       totalTime: string;
     }>(
-      `SELECT r.id, r.title, r.slug, r.description, MAX(ri.hero_wide) as hero_wide, r.category, r.servings, r.prep_time as prepTime, r.total_time as totalTime
+      `SELECT r.id, r.title, r.slug, r.description, MAX(ri.hero_wide) as hero_wide, r.category, r.servings, r.prep_time as prepTime, r.cook_time as cookTime, r.total_time as totalTime
        FROM recipes r
        LEFT JOIN recipe_images ri ON r.id = ri.recipe_id
        ${where} 

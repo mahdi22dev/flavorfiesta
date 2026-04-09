@@ -83,8 +83,50 @@ export default async function RecipePost({
     category: r.category || "General",
   }));
 
+  const parseDuration = (d?: string) => {
+    if (!d) return undefined;
+    let pt = "PT";
+    const hMatch = d.match(/(\d+)\s*(h)/i);
+    const mMatch = d.match(/(\d+)\s*(m)/i);
+    if (hMatch) pt += hMatch[1] + "H";
+    if (mMatch) pt += mMatch[1] + "M";
+    return pt === "PT" ? "PT0M" : pt;
+  };
+
+  const jsonLd = {
+    "@context": "https://schema.org/",
+    "@type": "Recipe",
+    "name": post.title,
+    "image": post.cover_image ? [post.cover_image] : [],
+    "author": {
+      "@type": "Person",
+      "name": "The Savory Bites Culinary Team"
+    },
+    "datePublished": new Date().toISOString().split('T')[0],
+    "description": post.description,
+    "prepTime": parseDuration(post.recipe.prep_time),
+    "cookTime": parseDuration(post.recipe.cook_time),
+    "totalTime": parseDuration(post.recipe.total_time),
+    "keywords": Array.isArray(safeTags) ? safeTags.join(", ") : "",
+    "recipeYield": post.recipe.servings ? String(post.recipe.servings) : "1 serving",
+    "recipeCategory": post.category || "Main Course",
+    "recipeIngredient": Array.isArray(post.recipe.ingredients) 
+      ? post.recipe.ingredients.map((i: any) => typeof i === "string" ? i : JSON.stringify(i))
+      : [],
+    "recipeInstructions": Array.isArray(post.recipe.instructions)
+      ? post.recipe.instructions.map((step: any) => ({
+          "@type": "HowToStep",
+          "text": typeof step === "string" ? step : step.text || JSON.stringify(step)
+        }))
+      : []
+  };
+
   return (
     <div className="min-h-screen flex flex-col">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Header bgColor="bg-stone-50/90" />
       <main className="grow bg-white">
         {/* Hero Section */}
