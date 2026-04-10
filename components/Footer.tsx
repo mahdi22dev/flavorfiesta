@@ -55,23 +55,51 @@ export default function Footer() {
             </h4>
             <ul className="space-y-4 text-stone-400 text-sm">
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a href="/" className="hover:text-white transition-colors">
                   Home
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a href="/recipes" className="hover:text-white transition-colors">
                   Recipes
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
-                  Categories
+                <a href="/guides" className="hover:text-white transition-colors">
+                  Guides
                 </a>
               </li>
               <li>
-                <a href="#" className="hover:text-white transition-colors">
+                <a href="/author" className="hover:text-white transition-colors">
+                  Author
+                </a>
+              </li>
+              <li>
+                <a href="/about" className="hover:text-white transition-colors">
                   About Us
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-bold uppercase tracking-widest text-sm mb-6">
+              Legal
+            </h4>
+            <ul className="space-y-4 text-stone-400 text-sm">
+              <li>
+                <a href="/privacy-policy" className="hover:text-white transition-colors">
+                  Privacy Policy
+                </a>
+              </li>
+              <li>
+                <a href="/cookies-policy" className="hover:text-white transition-colors">
+                  Cookie Policy
+                </a>
+              </li>
+              <li>
+                <a href="/terms" className="hover:text-white transition-colors">
+                  Terms of Service
                 </a>
               </li>
             </ul>

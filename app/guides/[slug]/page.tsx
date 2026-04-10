@@ -12,6 +12,8 @@ import {
 import { headers } from "next/headers";
 import Link from "next/link";
 import ResponsiveImage from "@/components/ResponsiveImage";
+import ShareButtons from "@/components/ShareButtons";
+import CommentsSection from "@/components/CommentsSection";
 
 export default async function GuidePost({
   params,
@@ -134,7 +136,8 @@ export default async function GuidePost({
     "image": guide.coverImage ? [guide.coverImage] : [],
     "author": {
       "@type": "Person",
-      "name": "The Savory Bites Culinary Team"
+      "name": "Elena Rossi",
+      "url": `${protocol}://${host}/author`
     },
     "datePublished": "2024-01-01", 
     "description": guide.description,
@@ -190,7 +193,7 @@ export default async function GuidePost({
         </nav>
 
         {/* Hero Section */}
-        <section className="pb-16 border-b border-stone-100">
+        <section className="pb-16 border-b border-stone-300">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="mb-6 flex flex-wrap items-center gap-3">
               <span className="px-3 py-1 rounded-full bg-orange-600 text-white text-[10px] font-bold uppercase tracking-widest">
@@ -203,7 +206,11 @@ export default async function GuidePost({
               ))}
               <div className="flex items-center gap-1.5 text-stone-400 text-[10px] font-bold uppercase tracking-widest ml-auto">
                 <Calendar size={12} />
-                <span>Last Updated 2024</span>
+                <span>
+                  {guide.createdAt
+                    ? `Updated ${new Date(guide.createdAt).toLocaleDateString("en-US", { month: "long", year: "numeric" })}`
+                    : "Last Updated 2024"}
+                </span>
               </div>
             </div>
 
@@ -211,29 +218,25 @@ export default async function GuidePost({
               {guide.title}
             </h1>
 
-            <p className="text-xl text-stone-500 font-medium leading-relaxed max-w-3xl">
+            <p className="text-xl text-stone-500 font-medium leading-relaxed max-w-3xl mb-8">
               {guide.description}
             </p>
+
+            <div className="flex items-center gap-3">
+              <img src="/author_elena_rossi.png" alt="Elena Rossi" className="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover" />
+              <div className="text-left">
+                 <p className="text-xs font-bold text-stone-900 leading-tight mb-0.5">Written by <Link href="/author" className="hover:text-orange-600 transition-colors">Elena Rossi</Link></p>
+                 <p className="text-[9px] uppercase font-bold tracking-widest text-stone-400 leading-none cursor-default">Culinary Director</p>
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* Cover Image */}
-        {guide.coverImage ? (
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
-            <div className="rounded-4xl overflow-hidden shadow-2xl shadow-stone-200 border border-white">
-              <img
-                src={guide.coverImage}
-                alt={guide.title}
-                className="w-full h-auto max-h-[70vh] object-cover"
-                referrerPolicy="no-referrer"
-              />
-            </div>
-          </div>
-        ) : (
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
-            <ImagePlaceholder alt={guide.title} />
-          </div>
-        )}
+        {/* Share bar — right under hero */}
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 border-b border-stone-200 pb-8">
+          <ShareButtons title={guide.title} />
+        </div>
+
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-16 py-20">
           {/* Outline / Sidebar */}
@@ -241,7 +244,7 @@ export default async function GuidePost({
             <div className="sticky top-28 space-y-8">
               {(guide.table_of_contents || guide.outline) &&
                 (guide.table_of_contents || guide.outline).length > 0 && (
-                  <div className="bg-stone-50 rounded-3xl p-8 border border-stone-100">
+                  <div className="bg-stone-50 rounded-3xl p-8 border border-stone-200">
                     <h3 className="text-[10px] font-bold uppercase tracking-[0.25em] text-stone-400 mb-6">
                       In This Guide
                     </h3>
@@ -346,8 +349,10 @@ export default async function GuidePost({
                     );
                   }
                   if (block.type === "image") {
+                    const normalizedRef = block.reference ? block.reference.replace(/^\/?(recipes\/|pillar\/|guides\/)/, "") : null;
                     const src =
                       block.src ||
+                      (normalizedRef && guide.images?.[normalizedRef]) ||
                       (block.reference && guide.images?.[block.reference]);
                     if (src) {
                       return (
@@ -448,16 +453,22 @@ export default async function GuidePost({
                   <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 mb-2">
                     Author
                   </h4>
-                  <p className="text-sm font-bold text-stone-900 font-serif italic">
-                    The Savory Bites Culinary Team
-                  </p>
+                  <Link href="/author" className="text-sm font-bold text-stone-900 font-serif italic hover:text-orange-600 transition-colors">
+                    Elena Rossi
+                  </Link>
                 </div>
                 <div className="flex gap-4">
-                  {/* Social buttons placeholder */}
+                  {/* Social share */}
+                  <ShareButtons title={guide.title} />
                 </div>
               </div>
             </div>
           </article>
+        </div>
+
+        {/* Comments */}
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+          <CommentsSection />
         </div>
       </main>
 

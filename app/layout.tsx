@@ -17,6 +17,8 @@ export const metadata: Metadata = {
   description: "Find the best fresh, vibrant recipes for every season.",
 };
 
+import CookieBanner from "@/components/CookieBanner";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,7 +29,10 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${playfair.variable} font-sans h-full antialiased text-stone-800 bg-white`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <CookieBanner />
+      </body>
     </html>
   );
 }

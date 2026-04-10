@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
 import {
   Search as SearchIcon,
-  ChevronDown,
   Clock,
   ChevronLeft,
   ChevronRight,
@@ -13,6 +12,7 @@ import {
 import ResponsiveImage from "./ResponsiveImage";
 import { useSearchParams } from "next/navigation";
 import { PaginationData, Recipe } from "@/lib/types";
+import CategoryDropdown from "./CategoryDropdown";
 
 function SearchContent() {
   const searchParams = useSearchParams();
@@ -98,22 +98,6 @@ function SearchContent() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      {/* Hero Heading */}
-      <div className="flex flex-col items-center text-center mb-16">
-        <div className="relative inline-block px-8 py-4">
-          <div className="absolute inset-0 bg-stone-100/60 -z-10 rounded-lg"></div>
-          <h1 className="text-4xl md:text-6xl font-serif font-bold text-stone-900 leading-tight">
-            Explore Our Recipes
-            <br />
-            <span className="font-sans font-normal text-stone-700">
-              created by our{" "}
-            </span>
-            <span className="italic font-serif font-light text-orange-600">
-              maestro
-            </span>
-          </h1>
-        </div>
-      </div>
 
       {/* Search Header */}
       <div className="mb-12 border-b border-stone-100 pb-12">
@@ -124,37 +108,25 @@ function SearchContent() {
             </h2>
             <div className="relative group">
               <SearchIcon
-                className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-300 group-focus-within:text-orange-500 transition-colors"
-                size={20}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-400 transition-colors"
+                size={16}
               />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search recipes..."
-                className="w-full pl-14 pr-6 py-4 rounded-2xl bg-stone-50 border-none focus:bg-white focus:ring-4 focus:ring-orange-500/10 shadow-sm transition-all text-stone-900"
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-transparent border border-orange-500 ring-2 ring-orange-500/10 outline-none transition-all text-stone-800 placeholder:text-stone-300 text-sm focus:ring-orange-500/20"
               />
             </div>
           </div>
 
-          <div className="relative w-full md:w-64">
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full appearance-none bg-stone-50 border-none rounded-2xl px-6 py-4 pr-12 focus:bg-white focus:ring-4 focus:ring-orange-500/10 text-stone-600 font-medium cursor-pointer shadow-sm transition-all"
-            >
-              <option>Categories</option>
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-            <ChevronDown
-              className="absolute right-5 top-1/2 -translate-y-1/2 text-stone-300 pointer-events-none"
-              size={18}
-            />
-          </div>
+          <CategoryDropdown
+            value={category}
+            options={categories}
+            placeholder="All Categories"
+            onChange={(val) => setCategory(val === "All Categories" ? "Categories" : val)}
+          />
         </div>
       </div>
 

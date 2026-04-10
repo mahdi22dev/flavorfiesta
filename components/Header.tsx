@@ -1,168 +1,145 @@
 "use client";
-import { Search, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { Search, Menu, X } from "lucide-react";
 
-export default function Header({
-  bgColor = "bg-white/80",
-}: { bgColor?: string } = {}) {
+const NAV_LINKS = [
+  { href: "/", label: "Home" },
+  { href: "/recipes", label: "Recipes" },
+  { href: "/guides", label: "Guides" },
+  { href: "/author", label: "Author" },
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
+];
+
+export default function Header({ bgColor = "bg-white/80" }: { bgColor?: string } = {}) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
-    };
+    const handleScroll = () => setIsScrolled(window.scrollY > 10);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Prevent scroll when menu is open
+  // close on route change
+  useEffect(() => { setIsMenuOpen(false); }, [pathname]);
+
+  // lock body scroll when menu open
   useEffect(() => {
-    if (isMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
+    document.body.style.overflow = isMenuOpen ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
   }, [isMenuOpen]);
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled || isMenuOpen
-          ? `${bgColor} backdrop-blur-md border-b border-stone-200 shadow-sm`
-          : "bg-white border-b border-transparent shadow-none"
-      } print:hidden`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
-          <div className="flex items-center gap-8">
-            <Link href="/">
-              <h1 className="text-2xl font-serif font-bold tracking-tight text-stone-900 cursor-pointer">
+    <>
+      <header
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          isScrolled
+            ? `${bgColor} backdrop-blur-md border-b border-stone-200 shadow-sm`
+            : "bg-white border-b border-transparent shadow-none"
+        } print:hidden`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16 md:h-20">
+            {/* Logo */}
+            <Link href="/" className="shrink-0">
+              <span className="text-xl md:text-2xl font-serif font-bold tracking-tight text-stone-900">
                 SAVORY<span className="text-orange-600">BITES</span>
-              </h1>
+              </span>
             </Link>
-            <nav className="hidden md:flex space-x-8 text-sm font-medium uppercase tracking-wider text-stone-600">
-              <Link
-                href="/recipes"
-                className="hover:text-orange-600 transition-colors"
-              >
-                Recipes
-              </Link>
-              <Link
-                href="/guides"
-                className="hover:text-orange-600 transition-colors"
-              >
-                Guides
-              </Link>
-              {/* <Link
-                href="/#categories"
-                className="hover:text-orange-600 transition-colors"
-              >
-                Categories
-              </Link> */}
-              <Link
-                href="/about"
-                className="hover:text-orange-600 transition-colors"
-              >
-                About
-              </Link>
-              <Link
-                href="/contact"
-                className="hover:text-orange-600 transition-colors"
-              >
-                Contact
-              </Link>
+
+            {/* Desktop nav */}
+            <nav className="hidden md:flex items-center space-x-7 text-sm font-medium uppercase tracking-wider text-stone-600">
+              {NAV_LINKS.filter(l => l.href !== "/").map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`hover:text-orange-600 transition-colors ${pathname === href ? "text-orange-600" : ""}`}
+                >
+                  {label}
+                </Link>
+              ))}
             </nav>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link
-              href="/recipes"
-              className="p-2 text-stone-500 hover:text-orange-600 transition-colors"
-            >
-              <Search size={20} />
-            </Link>
-            <button 
-              className="md:hidden p-2 text-stone-500 hover:text-orange-600 transition-colors z-50"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              aria-label="Toggle menu"
-            >
-              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+
+            {/* Right side */}
+            <div className="flex items-center gap-2">
+              <Link href="/recipes" className="p-2 text-stone-500 hover:text-orange-600 transition-colors" aria-label="Search">
+                <Search size={20} />
+              </Link>
+              <button
+                className="md:hidden p-2 text-stone-500 hover:text-orange-600 transition-colors"
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                aria-label="Toggle menu"
+              >
+                {isMenuOpen ? <X size={22} /> : <Menu size={22} />}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Mobile Menu Backdrop */}
-      <div 
-        className={`fixed inset-0 bg-stone-900/40 backdrop-blur-sm z-40 transition-opacity duration-300 md:hidden ${
+      {/* Full-screen mobile menu — rendered as sibling to avoid stacking context issues */}
+      <div
+        className={`fixed inset-0 z-[60] bg-white flex flex-col md:hidden transition-all duration-300 ease-in-out ${
           isMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
-        onClick={() => setIsMenuOpen(false)}
-      />
-
-      {/* Mobile Menu Sidebar */}
-      <div 
-        className={`fixed top-0 right-0 bottom-0 w-[85%] max-w-sm bg-white z-50 transition-transform duration-300 ease-in-out md:hidden shadow-2xl flex flex-col ${
-          isMenuOpen ? "translate-x-0" : "translate-x-full"
-        }`}
       >
-        <div className="flex items-center justify-between h-20 px-8 border-b border-stone-100">
-          <h2 className="text-xl font-serif font-bold tracking-tight text-stone-900">
-            Menu
-          </h2>
-          <button 
-            className="p-2 text-stone-500 hover:text-orange-600 transition-colors"
+        {/* Top bar inside the overlay */}
+        <div className="flex items-center justify-between px-6 h-16 border-b border-stone-100 shrink-0">
+          <Link href="/" onClick={() => setIsMenuOpen(false)}>
+            <span className="text-xl font-serif font-bold text-stone-900">
+              SAVORY<span className="text-orange-600">BITES</span>
+            </span>
+          </Link>
+          <button
             onClick={() => setIsMenuOpen(false)}
+            className="p-2 text-stone-500 hover:text-orange-600 transition-colors"
+            aria-label="Close menu"
           >
             <X size={24} />
           </button>
         </div>
-        
-        <nav className="flex flex-col p-8 space-y-8 text-2xl font-serif font-bold text-stone-900">
-          <Link
-            href="/recipes"
-            className="hover:text-orange-600 transition-colors flex items-center justify-between"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            Recipes
-            <span className="text-stone-200">→</span>
-          </Link>
-          <Link
-            href="/guides"
-            className="hover:text-orange-600 transition-colors flex items-center justify-between"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            Guides
-            <span className="text-stone-200">→</span>
-          </Link>
-          <Link
-            href="/about"
-            className="hover:text-orange-600 transition-colors flex items-center justify-between"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            About
-            <span className="text-stone-200">→</span>
-          </Link>
-          <Link
-            href="/contact"
-            className="hover:text-orange-600 transition-colors flex items-center justify-between"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            Contact
-            <span className="text-stone-200">→</span>
-          </Link>
+
+        {/* Nav links — centered, large */}
+        <nav className="flex-1 flex flex-col justify-center px-8 space-y-2">
+          {NAV_LINKS.map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              onClick={() => setIsMenuOpen(false)}
+              className={`flex items-center justify-between py-4 text-2xl font-serif font-bold border-b border-stone-50 transition-colors ${
+                pathname === href ? "text-orange-600" : "text-stone-900 hover:text-orange-600"
+              }`}
+            >
+              {label}
+              <span className="text-stone-200 text-lg">→</span>
+            </Link>
+          ))}
         </nav>
 
-        <div className="mt-auto p-8 border-t border-stone-100 bg-stone-50">
-          <p className="text-xs font-sans font-bold uppercase tracking-[0.2em] text-stone-400 mb-4">
-            Follow Us
-          </p>
-          <div className="flex gap-4 text-stone-600 font-serif italic text-lg hover:text-orange-600">
-            @savorybites
-          </div>
+        {/* Footer block */}
+        <div className="shrink-0 px-8 py-8 border-t border-stone-100 bg-stone-50">
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 mb-4">Our Author</p>
+          <Link
+            href="/author"
+            onClick={() => setIsMenuOpen(false)}
+            className="flex items-center gap-3 group"
+          >
+            <img
+              src="/author_elena_rossi.png"
+              alt="Elena Rossi"
+              className="w-10 h-10 rounded-full object-cover border-2 border-white shadow"
+            />
+            <div>
+              <p className="text-sm font-bold text-stone-900 font-serif italic group-hover:text-orange-600 transition-colors">Elena Rossi</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Culinary Director</p>
+            </div>
+          </Link>
         </div>
       </div>
-    </header>
+    </>
   );
 }

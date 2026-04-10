@@ -47,9 +47,10 @@ export async function GET(
       s3_key: string;
       tags: string[];
       heroWide: string | null;
+      createdAt: string | null;
     }>(
       `SELECT p.id, p.title, p.slug, p.description, p.cover_image as coverImage, p.category, p.s3_key, p.tags,
-              ri.hero_wide as heroWide
+              ri.hero_wide as heroWide, p.created_at as createdAt
        FROM pillars p
        LEFT JOIN recipe_images ri ON p.id = ri.pillar_id AND ri.recipe_id IS NULL
        WHERE p.slug = ? OR p.slug = ? LIMIT 1`,
@@ -73,8 +74,8 @@ export async function GET(
       `SELECT r.slug, ri.hero_wide as heroWide
        FROM recipes r
        LEFT JOIN recipe_images ri ON r.id = ri.recipe_id
-       WHERE r.pillar_id = ?`,
-      [guide.id],
+       WHERE r.pillar_id = ? OR r.pillar_slug = ?`,
+      [guide.id, baseSlug],
     );
 
     const recipeImagesMap = recipesRows.reduce(
@@ -99,6 +100,7 @@ export async function GET(
         images: {
           ...(data.images || {}),
           ...recipeImagesMap,
+          hero_wide: coverImageUrl,
         },
       });
     } catch (cdnErr) {
@@ -107,7 +109,10 @@ export async function GET(
         {
           ...guide,
           coverImage: coverImageUrl,
-          images: recipeImagesMap,
+          images: {
+            ...recipeImagesMap,
+            hero_wide: coverImageUrl,
+          },
           content: [],
           sections: [],
           error: `Content fetch failed: ${(cdnErr as Error).message}`,

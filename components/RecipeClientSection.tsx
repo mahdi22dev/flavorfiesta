@@ -147,7 +147,7 @@ export default function RecipeClientSection({
         <aside className="lg:w-72 shrink-0">
           <div className="sticky top-28 space-y-8">
             {/* Recipe Stats Sidebar (Compact) */}
-            <div className="bg-stone-50 rounded-3xl p-8 border border-stone-100 shadow-sm">
+            <div className="bg-stone-50 rounded-3xl p-8 border border-stone-200 shadow-sm">
               <h3 className="text-[10px] font-bold uppercase tracking-[0.25em] text-stone-400 mb-6 font-sans">
                 Quick Stats
               </h3>
@@ -174,7 +174,7 @@ export default function RecipeClientSection({
 
             {/* Table of Contents (Editorial style) */}
             {tableOfContents && tableOfContents.length > 0 && (
-              <div className="bg-stone-50 rounded-3xl p-8 border border-stone-100 shadow-sm">
+              <div className="bg-stone-50 rounded-3xl p-8 border border-stone-200 shadow-sm">
                 <h3 className="text-[10px] font-bold uppercase tracking-[0.25em] text-stone-400 mb-6">
                   In This Article
                 </h3>
@@ -267,8 +267,47 @@ export default function RecipeClientSection({
               }
               if (block.type === "image") {
                 // Support both direct ID/src and reference-based images from storyboard
-                const blockId = block.id || block.reference;
-                const src = blockId ? images[blockId] : block.src;
+                let blockId = block.id || block.reference;
+
+                let src = block.src;
+                if (!src && blockId) {
+                  // Direct match
+                  if (images[blockId]) src = images[blockId];
+                  else {
+                    // Try stripped prefix
+                    const stripped =
+                      typeof blockId === "string"
+                        ? blockId.replace(
+                            /^\/?(recipes\/|pillar\/|guides\/)/,
+                            "",
+                          )
+                        : blockId;
+                    if (images[stripped]) src = images[stripped];
+                    else {
+                      // Try matching just the filename (everything after the last slash)
+                      const filename =
+                        typeof blockId === "string"
+                          ? blockId.split("/").pop() ?? ""
+                          : "";
+                      if (filename) {
+                        for (const key of Object.keys(images)) {
+                          if (key.endsWith(filename)) {
+                            src = images[key];
+                            break;
+                          }
+                        }
+                      }
+
+                      // Also try matching by stripping extensions for fallback mapping
+                      if (!src && typeof blockId === "string") {
+                        const baseName = filename.replace(/\.[^/.]+$/, ""); // e.g. macro-texture
+                        if (images[baseName]) src = images[baseName];
+                        else if (images[baseName.replace(/-/g, "_")])
+                          src = images[baseName.replace(/-/g, "_")]; // macro_texture
+                      }
+                    }
+                  }
+                }
 
                 if (src) {
                   return (
@@ -343,9 +382,9 @@ export default function RecipeClientSection({
                     key={index}
                     className="my-20 flex items-center justify-center gap-6"
                   >
-                    <div className="h-px w-16 bg-stone-200" />
-                    <div className="w-2 h-2 rounded-full bg-orange-200 shadow-inner" />
-                    <div className="h-px w-16 bg-stone-200" />
+                    <div className="h-[2px] w-24 bg-stone-300 rounded-full" />
+                    <div className="w-3 h-3 rounded-full bg-orange-300 shadow-inner" />
+                    <div className="h-[2px] w-24 bg-stone-300 rounded-full" />
                   </div>
                 );
               }
@@ -439,11 +478,11 @@ export default function RecipeClientSection({
       {suggested.length > 0 && (
         <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
           <div className="flex items-center gap-4 mb-8">
-            <div className="flex-1 h-px bg-stone-100" />
+            <div className="flex-1 h-px bg-stone-300" />
             <h2 className="text-lg font-serif font-bold text-stone-900 whitespace-nowrap">
               You May Also Like
             </h2>
-            <div className="flex-1 h-px bg-stone-100" />
+            <div className="flex-1 h-px bg-stone-300" />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">

@@ -4,12 +4,12 @@ import { useState, useEffect, useCallback, Suspense } from "react";
 import Link from "next/link";
 import {
   Search as SearchIcon,
-  ChevronDown,
   Loader2,
   ArrowRight,
 } from "lucide-react";
 import ResponsiveImage from "./ResponsiveImage";
 import { useSearchParams } from "next/navigation";
+import CategoryDropdown from "./CategoryDropdown";
 
 interface Guide {
   id: number;
@@ -61,13 +61,18 @@ function GuidesContent() {
   }, [searchQuery, category, fetchGuides]);
 
   useEffect(() => {
-    // Basic categories for guides
-    setCategories([
-      "Cooking Basics",
-      "Ingredient Spotlights",
-      "Advanced Techniques",
-      "Kitchen Gear",
-    ]);
+    async function fetchCategories() {
+      try {
+        const response = await fetch("/api/guides/categories");
+        const result = await response.json();
+        if (result.categories) {
+          setCategories(result.categories);
+        }
+      } catch (error) {
+        console.error("Failed to fetch guide categories:", error);
+      }
+    }
+    fetchCategories();
   }, []);
 
   return (
@@ -81,37 +86,25 @@ function GuidesContent() {
             </h2>
             <div className="relative group">
               <SearchIcon
-                className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-300 group-focus-within:text-orange-500 transition-colors"
-                size={20}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-orange-400 transition-colors"
+                size={16}
               />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search culinary guides..."
-                className="w-full pl-14 pr-6 py-4 rounded-2xl bg-stone-50 border-none focus:bg-white focus:ring-4 focus:ring-orange-500/10 shadow-sm transition-all text-stone-900"
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-transparent border border-orange-500 ring-2 ring-orange-500/10 outline-none transition-all text-stone-800 placeholder:text-stone-300 text-sm focus:ring-orange-500/20"
               />
             </div>
           </div>
 
-          <div className="relative w-full md:w-64">
-            <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="w-full appearance-none bg-stone-50 border-none rounded-2xl px-6 py-4 pr-12 focus:bg-white focus:ring-4 focus:ring-orange-500/10 text-stone-600 font-medium cursor-pointer shadow-sm transition-all"
-            >
-              <option>Categories</option>
-              {categories.map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-            <ChevronDown
-              className="absolute right-5 top-1/2 -translate-y-1/2 text-stone-300 pointer-events-none"
-              size={18}
-            />
-          </div>
+          <CategoryDropdown
+            value={category}
+            options={categories}
+            placeholder="All Categories"
+            onChange={(val) => setCategory(val === "All Categories" ? "Categories" : val)}
+          />
         </div>
       </div>
 

@@ -1,10 +1,7 @@
-/**
- * Query the Cloudflare D1 REST API directly.
- * Works in both local `next dev` and in production Cloudflare Workers.
- */
+"use server";
 export async function queryD1<T = Record<string, unknown>>(
   sql: string,
-  params: unknown[] = []
+  params: unknown[] = [],
 ): Promise<T[]> {
   const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
   const databaseId = process.env.CLOUDFLARE_DATABASE_ID;
@@ -25,7 +22,7 @@ export async function queryD1<T = Record<string, unknown>>(
       body: JSON.stringify({ sql, params }),
       // Don't cache DB queries
       cache: "no-store",
-    }
+    },
   );
 
   if (!res.ok) {
