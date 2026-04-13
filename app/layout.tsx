@@ -13,8 +13,8 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "FlavorFiesta | Delicious Recipes",
-  description: "Find the best fresh, vibrant recipes for every season.",
+  title: "Cut & Sear | Master the Art of Cooking",
+  description: "Expert guides on cutting, searing, and perfectly preparing premium ingredients.",
 };
 
 import CookieBanner from "@/components/CookieBanner";

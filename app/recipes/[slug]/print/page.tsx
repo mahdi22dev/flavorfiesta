@@ -54,7 +54,7 @@ export default async function RecipePrintPage({
         <div className="mb-10 pb-8 border-b-2 border-stone-900 print:mb-6 print:pb-4">
           <div className="flex items-center gap-2 mb-3">
             <span className="text-xs font-bold uppercase tracking-widest text-orange-600 border border-orange-300 px-2 py-0.5 rounded-full">
-              FlavorFiesta
+              Cut & Sear
             </span>
           </div>
           <h1 className="text-4xl font-serif font-bold text-stone-900 mb-3 leading-tight print:text-3xl">
@@ -144,7 +144,7 @@ export default async function RecipePrintPage({
         {/* Footer */}
         <div className="mt-16 pt-6 border-t border-stone-200 text-center print:mt-8">
           <p className="text-xs text-stone-400">
-            Printed from <strong>FlavorFiesta.com</strong> · {recipe.title}
+            Printed from <strong>cutandsear.com</strong> · {recipe.title}
           </p>
         </div>
       </div>

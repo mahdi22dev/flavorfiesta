@@ -20,7 +20,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
           <div className="col-span-1 md:col-span-2">
             <h2 className="text-2xl font-serif font-bold tracking-tight mb-6">
-              SAVORY<span className="text-orange-500">BITES</span>
+              CUT<span className="text-orange-500">&</span>SEAR
             </h2>
             <p className="text-stone-400 max-w-sm mb-8">
               We believe that cooking should be an adventure. Join us as we
@@ -127,7 +127,7 @@ export default function Footer() {
 
         <div className="pt-8 border-t border-stone-800 text-center text-stone-500 text-xs">
           <p>
-            &copy; {new Date().getFullYear()} Savory Bites Blog. All rights
+            &copy; {new Date().getFullYear()} CUT & SEAR. All rights
             reserved.
           </p>
         </div>

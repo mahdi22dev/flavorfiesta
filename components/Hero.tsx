@@ -14,14 +14,14 @@ interface HeroProps {
 }
 
 export default function Hero({ recipe }: HeroProps) {
-  const displayTitle = recipe?.title || "The Art of Gourmet Cooking";
+  const displayTitle = recipe?.title || "Master the Art of the Perfect Sear";
   const displayDesc =
     recipe?.description ||
-    "Discover the secrets behind professional culinary techniques and authentic flavors from around the world.";
+    "Expert guides on precision cutting, high-heat searing, and the secrets to perfectly prepared proteins.";
   const displayImage =
     recipe?.coverImage ||
-    "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=1920";
-  const displayTag = recipe?.category || "Featured Selection";
+    "https://images.unsplash.com/photo-1544022613-e87f71784d64?auto=format&fit=crop&q=80&w=1920";
+  const displayTag = recipe?.category || "Chef's Cut";
 
   return (
     <section className="relative h-[80vh] flex items-center overflow-hidden bg-stone-900">

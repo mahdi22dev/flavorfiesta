@@ -46,8 +46,8 @@ export default function Header({ bgColor = "bg-white/80" }: { bgColor?: string }
           <div className="flex justify-between items-center h-16 md:h-20">
             {/* Logo */}
             <Link href="/" className="shrink-0">
-              <span className="text-xl md:text-2xl font-serif font-bold tracking-tight text-stone-900">
-                SAVORY<span className="text-orange-600">BITES</span>
+              <span className="text-2xl md:text-3xl font-serif font-bold tracking-tight text-stone-900">
+                CUT<span className="text-orange-600">&</span>SEAR
               </span>
             </Link>
 
@@ -90,8 +90,8 @@ export default function Header({ bgColor = "bg-white/80" }: { bgColor?: string }
         {/* Top bar inside the overlay */}
         <div className="flex items-center justify-between px-6 h-16 border-b border-stone-100 shrink-0">
           <Link href="/" onClick={() => setIsMenuOpen(false)}>
-            <span className="text-xl font-serif font-bold text-stone-900">
-              SAVORY<span className="text-orange-600">BITES</span>
+            <span className="text-2xl font-serif font-bold text-stone-900">
+              CUT<span className="text-orange-600">&</span>SEAR
             </span>
           </Link>
           <button
@@ -131,6 +131,7 @@ export default function Header({ bgColor = "bg-white/80" }: { bgColor?: string }
             <img
               src="/author_elena_rossi.png"
               alt="Elena Rossi"
+              loading="lazy"
               className="w-10 h-10 rounded-full object-cover border-2 border-white shadow"
             />
             <div>

@@ -208,6 +208,7 @@ export default async function Home() {
                       <img
                         src={featured.coverImage}
                         alt={featured.title}
+                        loading="lazy"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                         referrerPolicy="no-referrer"
                       />
