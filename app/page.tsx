@@ -136,32 +136,41 @@ async function getHomePageData() {
       [featured?.id || -1],
     );
 
-    // Fetch up to 4 recipes per featured category in parallel
+    // Fetch up to 4 recipes per featured category in parallel with random offsets
     const categoryRecipes = await Promise.all(
-      FEATURED_CATEGORIES.map(({ key }) =>
-        queryD1<{
-          id: number;
-          title: string;
-          slug: string;
-          description: string;
-          hero_wide: string;
-          category: string;
-          created_at: string;
-        }>(
-          `SELECT id, title, slug, description, hero_wide, category, created_at
-           FROM (
-             SELECT r.id, r.title, r.slug, r.description, ri.hero_wide, r.category, r.created_at,
-                    ROW_NUMBER() OVER (PARTITION BY r.pillar_id ORDER BY RANDOM()) as rn
+      FEATURED_CATEGORIES.map(async ({ key }) => {
+        try {
+          // Get total count for this category to calculate a valid random offset
+          const countRows = await queryD1<{ count: number }>(
+            `SELECT COUNT(*) as count FROM recipes WHERE LOWER(category) LIKE LOWER(?)`,
+            [`%${key}%`],
+          );
+          const totalCount = countRows[0]?.count || 0;
+          const randomOffset = totalCount > 4 ? Math.floor(Math.random() * (totalCount - 3)) : 0;
+
+          return queryD1<{
+            id: number;
+            title: string;
+            slug: string;
+            description: string;
+            hero_wide: string;
+            category: string;
+            created_at: string;
+          }>(
+            `SELECT r.id, r.title, r.slug, r.description, ri.hero_wide, r.category, r.created_at
              FROM recipes r
              LEFT JOIN recipe_images ri ON r.id = ri.recipe_id
              WHERE LOWER(r.category) LIKE LOWER(?)
-           )
-           ORDER BY rn, RANDOM() 
-           LIMIT 4`,
-          [`%${key}%`],
-        ).catch(() => []),
-      ),
+             LIMIT 4 OFFSET ?`,
+            [`%${key}%`, randomOffset],
+          );
+        } catch (err) {
+          console.error(`Error fetching category ${key}:`, err);
+          return [];
+        }
+      }),
     );
+
 
 
     const normalize = (r: any) => ({
