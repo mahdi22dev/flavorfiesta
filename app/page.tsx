@@ -130,22 +130,11 @@ async function getHomePageData() {
       id: number;
       title: string;
       slug: string;
-      category: string;
       created_at: string;
     }>(
-      `SELECT id, title, slug, category, created_at 
-       FROM (
-         SELECT id, title, slug, category, created_at,
-                ROW_NUMBER() OVER (PARTITION BY category ORDER BY RANDOM()) as rn
-         FROM recipes 
-         WHERE id != ?
-       )
-       WHERE rn = 1 
-       ORDER BY RANDOM() 
-       LIMIT 5`,
+      `SELECT id, title, slug, created_at FROM recipes WHERE id != ? ORDER BY RANDOM() LIMIT 5`,
       [featured?.id || -1],
     );
-
 
     // Fetch up to 4 recipes per featured category in parallel
     const categoryRecipes = await Promise.all(
@@ -159,15 +148,21 @@ async function getHomePageData() {
           category: string;
           created_at: string;
         }>(
-          `SELECT r.id, r.title, r.slug, r.description, ri.hero_wide, r.category, r.created_at
-           FROM recipes r
-           LEFT JOIN recipe_images ri ON r.id = ri.recipe_id
-           WHERE LOWER(r.category) LIKE LOWER(?)
-           ORDER BY r.created_at DESC LIMIT 4`,
+          `SELECT id, title, slug, description, hero_wide, category, created_at
+           FROM (
+             SELECT r.id, r.title, r.slug, r.description, ri.hero_wide, r.category, r.created_at,
+                    ROW_NUMBER() OVER (PARTITION BY r.pillar_id ORDER BY RANDOM()) as rn
+             FROM recipes r
+             LEFT JOIN recipe_images ri ON r.id = ri.recipe_id
+             WHERE LOWER(r.category) LIKE LOWER(?)
+           )
+           ORDER BY rn, RANDOM() 
+           LIMIT 4`,
           [`%${key}%`],
         ).catch(() => []),
       ),
     );
+
 
     const normalize = (r: any) => ({
       ...r,
