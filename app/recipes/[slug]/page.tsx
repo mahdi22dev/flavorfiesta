@@ -223,11 +223,12 @@ export default async function RecipePost({
             <a
               id="hero-jump-button"
               href="#recipe-card"
-              className="inline-flex items-center gap-2 px-6 py-3.5 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-full shadow-md shadow-orange-200 transition-all duration-200 hover:scale-105 text-xs uppercase tracking-widest mt-4"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-full shadow-lg shadow-orange-200 transition-all duration-300 hover:scale-105 text-[10px] uppercase tracking-[0.2em] mt-8 group"
             >
+              Jump to Recipe
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="w-4 h-4"
+                className="w-4 h-4 group-hover:translate-y-0.5 transition-transform"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -238,6 +239,7 @@ export default async function RecipePost({
                 <path d="M12 5v14M5 12l7 7 7-7" />
               </svg>
             </a>
+
           </div>
         </section>
 

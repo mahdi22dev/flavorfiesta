@@ -36,6 +36,13 @@
       "when": 1775419091919,
       "tag": "0004_vengeful_ben_urich",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1776194064335,
+      "tag": "0005_famous_sumo",
+      "breakpoints": true
     }
   ]
 }

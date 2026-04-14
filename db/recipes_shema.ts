@@ -83,6 +83,12 @@ export const recipeImages = sqliteTable("recipe_images", {
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
+export const newsletter = sqliteTable("newsletter", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  email: text("email").notNull().unique(),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+});
+
 // export const recipes = sqliteTable("recipes", {
 //   id: integer("id").primaryKey({ autoIncrement: true }),
 //   transformedCoverImage: text("transformed_cover_image"),

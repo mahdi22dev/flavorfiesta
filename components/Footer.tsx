@@ -1,5 +1,6 @@
 "use client";
 import { Mail } from "lucide-react";
+import NewsletterForm from "./NewsletterForm";
 
 const Facebook = ({ size = 24 }: { size?: number | string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
@@ -112,16 +113,7 @@ export default function Footer() {
             <p className="text-stone-400 text-sm mb-4">
               Get the latest recipes delivered to your inbox.
             </p>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                placeholder="Your email"
-                className="bg-stone-800 border-none rounded-lg px-4 py-2 text-sm w-full focus:ring-2 focus:ring-orange-500"
-              />
-              <button className="bg-orange-600 p-2 rounded-lg hover:bg-orange-700 transition-colors">
-                <Mail size={18} />
-              </button>
-            </div>
+            <NewsletterForm variant="footer" />
           </div>
         </div>
 

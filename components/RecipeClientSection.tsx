@@ -13,6 +13,7 @@ import {
 import IngredientChecklist from "./IngredientChecklist";
 import PrintButton from "./PrintButton";
 import Link from "next/link";
+import NewsletterForm from "./NewsletterForm";
 
 interface Props {
   slug: string;
@@ -195,18 +196,7 @@ export default function RecipeClientSection({
               </div>
             )}
 
-            {/* Newsletter Promo */}
-            <div className="bg-stone-900 rounded-3xl p-8 text-white shadow-xl">
-              <h3 className="text-lg font-serif font-bold mb-3">
-                Join the Club
-              </h3>
-              <p className="text-stone-400 text-xs leading-relaxed mb-6">
-                Weekly gourmet techniques delivered to your inbox.
-              </p>
-              <button className="w-full bg-orange-600 text-white font-bold py-3 rounded-xl text-[10px] uppercase tracking-widest hover:bg-orange-700 transition-colors shadow-lg shadow-orange-950/20">
-                Subscribe
-              </button>
-            </div>
+            <NewsletterForm />
           </div>
         </aside>
 

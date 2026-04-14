@@ -44,7 +44,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-bold text-lg text-stone-900 mb-1">Email Connect</h3>
-                    <p className="text-stone-500">hello@savorybites.com</p>
+                    <p className="text-stone-500"></p>
                   </div>
                 </div>
                 <div className="flex items-start group">
@@ -53,7 +53,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-bold text-lg text-stone-900 mb-1">Call Us</h3>
-                    <p className="text-stone-500">+1 (555) 123-4567</p>
+                    <p className="text-stone-500"></p>
                   </div>
                 </div>
                 <div className="flex items-start group">
@@ -62,11 +62,12 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-bold text-lg text-stone-900 mb-1">Visit Us</h3>
-                    <p className="text-stone-500 leading-relaxed">123 Culinary Lane<br/>Flavor Town, CA 90210</p>
+                    <p className="text-stone-500 leading-relaxed"></p>
                   </div>
                 </div>
               </div>
             </div>
+
           </div>
         </div>
       </main>
