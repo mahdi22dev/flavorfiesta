@@ -130,11 +130,22 @@ async function getHomePageData() {
       id: number;
       title: string;
       slug: string;
+      category: string;
       created_at: string;
     }>(
-      `SELECT id, title, slug, created_at FROM recipes WHERE id != ? ORDER BY RANDOM() LIMIT 5`,
+      `SELECT id, title, slug, category, created_at 
+       FROM (
+         SELECT id, title, slug, category, created_at,
+                ROW_NUMBER() OVER (PARTITION BY category ORDER BY RANDOM()) as rn
+         FROM recipes 
+         WHERE id != ?
+       )
+       WHERE rn = 1 
+       ORDER BY RANDOM() 
+       LIMIT 5`,
       [featured?.id || -1],
     );
+
 
     // Fetch up to 4 recipes per featured category in parallel
     const categoryRecipes = await Promise.all(
