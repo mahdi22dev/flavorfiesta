@@ -1,6 +1,5 @@
-"use client";
-import { motion, AnimatePresence } from "motion/react";
-import { useState } from "react";
+import { motion } from "motion/react";
+import Image from "next/image";
 
 interface ResponsiveImageProps {
   src: string;
@@ -28,8 +27,6 @@ export default function ResponsiveImage({
   objectFit = "cover",
   containerBg = "bg-stone-50",
 }: ResponsiveImageProps) {
-  const [isLoaded, setIsLoaded] = useState(false);
-
   return (
     <div 
       className={`relative overflow-hidden rounded-[2rem] group shadow-sm hover:shadow-xl transition-all duration-500 border border-stone-100 ${containerBg} ${aspectRatio} ${containerClassName}`}
@@ -38,31 +35,17 @@ export default function ResponsiveImage({
         minHeight: minHeight || "none" 
       }}
     >
-      {/* Skeleton Loader */}
-      <AnimatePresence>
-        {!isLoaded && (
-          <motion.div 
-            initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 z-0 bg-stone-100 flex items-center justify-center"
-          >
-            <div className="w-10 h-10 border-2 border-stone-200 border-t-orange-500 rounded-full animate-spin"></div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
       
-      <motion.img
+      <Image
         src={src}
         alt={alt}
+        fill
+        unoptimized
         loading="lazy"
-        initial={{ opacity: 0, scale: 1.05 }}
-        animate={{ opacity: isLoaded ? 1 : 0, scale: isLoaded ? 1 : 1.05 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        onLoad={() => setIsLoaded(true)}
-        className={`w-full h-full transition-transform duration-1000 ease-out group-hover:scale-105 ${
+        className={`transition-transform duration-1000 ease-out group-hover:scale-105 ${
           objectFit === "cover" ? "object-cover" : "object-contain"
         } ${className}`}
-        referrerPolicy="no-referrer"
       />
 
       {/* Content Overlay - Ensures text is readable and doesn't "destroy" the image area */}
