@@ -1,44 +1,39 @@
 "use server";
 
+import { getCloudflareContext } from "@opennextjs/cloudflare";
+
+/**
+ * queryD1 is a utility to execute SQL queries on Cloudflare D1.
+ * It now uses the native D1 binding provided by OpenNext/Cloudflare context.
+ */
 export async function queryD1<T = Record<string, unknown>>(
   sql: string,
   params: unknown[] = [],
 ): Promise<T[]> {
-  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
-  const databaseId = process.env.CLOUDFLARE_DATABASE_ID;
-  const token = process.env.CLOUDFLARE_D1_TOKEN;
+  // getCloudflareContext() handles both local dev (via @opennextjs/cloudflare/dev)
+  // and production environments.
+  const { env } = await getCloudflareContext();
+  const db = env.DB_RECIPES;
 
-  if (!accountId || !databaseId || !token) {
-    throw new Error("Missing Cloudflare D1 environment variables");
+  if (!db) {
+    // This usually happens if the binding name in wrangler.jsonc doesn't match
+    // or if the local development environment is not correctly initialized.
+    throw new Error(
+      "D1 database binding 'DB_RECIPES' not found. " +
+        "If running locally, ensure 'pnpm run dev' is used and wrangler.jsonc is correct.",
+    );
   }
 
-  const res = await fetch(
-    `https://api.cloudflare.com/client/v4/accounts/${accountId}/d1/database/${databaseId}/query`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ sql, params }),
-      // Don't cache DB queries
-      cache: "no-store",
-    },
-  );
+  try {
+    const result = await db
+      .prepare(sql)
+      .bind(...params)
+      .all();
 
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`D1 REST API error ${res.status}: ${text}`);
+    // The binding returns result.results as an array of objects
+    return (result.results || []) as T[];
+  } catch (error) {
+    console.error("D1 Query Error:", { sql, params, error });
+    throw error;
   }
-
-  const json = (await res.json()) as {
-    result: { results: T[]; success: boolean }[];
-    success: boolean;
-  };
-
-  if (!json.success) {
-    throw new Error("D1 REST API returned success: false");
-  }
-
-  return json.result?.[0]?.results ?? [];
 }

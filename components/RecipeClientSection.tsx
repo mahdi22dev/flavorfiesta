@@ -47,6 +47,20 @@ function formatSectionTitle(slug: string) {
     .join(" ");
 }
 
+/**
+ * Fixes relative links in provided HTML string by ensuring they start with /
+ * e.g. href="guides/target" -> href="/guides/target"
+ */
+function fixInternalLinks(html: string) {
+  if (!html) return html;
+  return html.replace(/href=["'](guides|recipes)\//g, (match) => {
+    const quote = match.startsWith('href="') ? '"' : "'";
+    const type = match.includes('guides/') ? 'guides' : 'recipes';
+    return `href=${quote}/${type}/`;
+  });
+}
+
+
 function ImagePlaceholder({
   alt,
   className = "",
@@ -233,8 +247,9 @@ export default function RecipeClientSection({
                   <p
                     key={index}
                     className="leading-relaxed mb-8 text-lg font-medium text-stone-600"
-                    dangerouslySetInnerHTML={{ __html: block.text }}
+                    dangerouslySetInnerHTML={{ __html: fixInternalLinks(block.text) }}
                   />
+
                 );
               }
               if (block.type === "heading") {
@@ -345,8 +360,9 @@ export default function RecipeClientSection({
                       <li
                         key={i}
                         className="pl-2 leading-relaxed"
-                        dangerouslySetInnerHTML={{ __html: item }}
+                        dangerouslySetInnerHTML={{ __html: fixInternalLinks(item) }}
                       />
+
                     ))}
                   </ListTag>
                 );
