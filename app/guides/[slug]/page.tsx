@@ -132,24 +132,24 @@ export default async function GuidePost({
   const jsonLd = {
     "@context": "https://schema.org/",
     "@type": "Recipe",
-    "name": guide.title,
-    "image": guide.coverImage ? [guide.coverImage] : [],
-    "author": {
+    name: guide.title,
+    image: guide.coverImage ? [guide.coverImage] : [],
+    author: {
       "@type": "Person",
-      "name": "Elena Rossi",
-      "url": `${protocol}://${host}/author`
+      name: "Elena Rossi",
+      url: `${protocol}://${host}/author`,
     },
-    "datePublished": "2024-01-01", 
-    "description": guide.description,
-    "keywords": Array.isArray(safeTags) ? safeTags.join(", ") : "",
-    "recipeCategory": guide.category || "Culinary Guide",
-    "recipeIngredient": [],
-    "recipeInstructions": (guide.content || [])
+    datePublished: "2024-01-01",
+    description: guide.description,
+    keywords: Array.isArray(safeTags) ? safeTags.join(", ") : "",
+    recipeCategory: guide.category || "Culinary Guide",
+    recipeIngredient: [],
+    recipeInstructions: (guide.content || [])
       .filter((b: any) => b.type === "paragraph" && typeof b.text === "string")
       .map((step: any) => ({
         "@type": "HowToStep",
-        "text": step.text.replace(/<[^>]*>?/gm, "")
-      }))
+        text: step.text.replace(/<[^>]*>?/gm, ""),
+      })),
   };
 
   return (
@@ -199,11 +199,15 @@ export default async function GuidePost({
               <span className="px-3 py-1 rounded-full bg-orange-600 text-white text-[10px] font-bold uppercase tracking-widest">
                 {guide.category || "Culinary Guide"}
               </span>
-              {Array.isArray(safeTags) && safeTags.slice(0, 3).map((tag: string) => (
-                <span key={tag} className="px-3 py-1 border border-stone-200 text-stone-500 text-[10px] font-bold uppercase tracking-widest rounded-full">
-                  #{tag}
-                </span>
-              ))}
+              {Array.isArray(safeTags) &&
+                safeTags.slice(0, 3).map((tag: string) => (
+                  <span
+                    key={tag}
+                    className="px-3 py-1 border border-stone-200 text-stone-500 text-[10px] font-bold uppercase tracking-widest rounded-full"
+                  >
+                    #{tag}
+                  </span>
+                ))}
               <div className="flex items-center gap-1.5 text-stone-400 text-[10px] font-bold uppercase tracking-widest ml-auto">
                 <Calendar size={12} />
                 <span>
@@ -223,10 +227,24 @@ export default async function GuidePost({
             </p>
 
             <div className="flex items-center gap-3">
-              <img src="/author_elena_rossi.png" alt="Elena Rossi" className="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover" />
+              <img
+                src="/author_elena_rossi_64x64px.png"
+                alt="Elena Rossi"
+                className="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover"
+              />
               <div className="text-left">
-                 <p className="text-xs font-bold text-stone-900 leading-tight mb-0.5">Written by <Link href="/author" className="hover:text-orange-600 transition-colors">Elena Rossi</Link></p>
-                 <p className="text-[9px] uppercase font-bold tracking-widest text-stone-400 leading-none cursor-default">Culinary Director</p>
+                <p className="text-xs font-bold text-stone-900 leading-tight mb-0.5">
+                  Written by{" "}
+                  <Link
+                    href="/author"
+                    className="hover:text-orange-600 transition-colors"
+                  >
+                    Elena Rossi
+                  </Link>
+                </p>
+                <p className="text-[9px] uppercase font-bold tracking-widest text-stone-400 leading-none cursor-default">
+                  Culinary Director
+                </p>
               </div>
             </div>
           </div>
@@ -236,7 +254,6 @@ export default async function GuidePost({
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 border-b border-stone-200 pb-8">
           <ShareButtons title={guide.title} />
         </div>
-
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row gap-16 py-20">
           {/* Outline / Sidebar */}
@@ -349,7 +366,12 @@ export default async function GuidePost({
                     );
                   }
                   if (block.type === "image") {
-                    const normalizedRef = block.reference ? block.reference.replace(/^\/?(recipes\/|pillar\/|guides\/)/, "") : null;
+                    const normalizedRef = block.reference
+                      ? block.reference.replace(
+                          /^\/?(recipes\/|pillar\/|guides\/)/,
+                          "",
+                        )
+                      : null;
                     const src =
                       block.src ||
                       (normalizedRef && guide.images?.[normalizedRef]) ||
@@ -453,7 +475,10 @@ export default async function GuidePost({
                   <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 mb-2">
                     Author
                   </h4>
-                  <Link href="/author" className="text-sm font-bold text-stone-900 font-serif italic hover:text-orange-600 transition-colors">
+                  <Link
+                    href="/author"
+                    className="text-sm font-bold text-stone-900 font-serif italic hover:text-orange-600 transition-colors"
+                  >
                     Elena Rossi
                   </Link>
                 </div>

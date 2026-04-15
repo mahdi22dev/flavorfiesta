@@ -85,6 +85,7 @@ export function SalmonIcon() {
     </svg>
   );
 }
+
 export const FEATURED_CATEGORIES = [
   { key: "Chicken", label: "Chicken Recipes", icon: <ChickenIcon /> },
   { key: "Beef", label: "Beef Recipes", icon: <BeefIcon /> },

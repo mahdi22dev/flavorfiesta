@@ -4,13 +4,7 @@ import Link from "next/link";
 import { queryD1 } from "@/db/db";
 import { ChevronRight } from "lucide-react";
 import CategorySection from "../components/section/CategorySection";
-import {
-  ChickenIcon,
-  BeefIcon,
-  PorkIcon,
-  SalmonIcon,
-  FEATURED_CATEGORIES,
-} from "@/lib/constante";
+import { FEATURED_CATEGORIES } from "@/lib/constante";
 
 export const dynamic = "force-dynamic";
 

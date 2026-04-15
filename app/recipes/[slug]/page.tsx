@@ -167,7 +167,7 @@ export default async function RecipePost({
 
             <div className="flex items-center justify-center gap-3 mb-8">
               <img
-                src="/author_elena_rossi.png"
+                src="/author_elena_rossi_64x64px.png"
                 alt="Elena Rossi"
                 className="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover"
               />
@@ -239,7 +239,6 @@ export default async function RecipePost({
                 <path d="M12 5v14M5 12l7 7 7-7" />
               </svg>
             </a>
-
           </div>
         </section>
 

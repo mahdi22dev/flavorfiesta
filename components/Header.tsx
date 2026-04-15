@@ -13,7 +13,9 @@ const NAV_LINKS = [
   { href: "/contact", label: "Contact" },
 ];
 
-export default function Header({ bgColor = "bg-white/80" }: { bgColor?: string } = {}) {
+export default function Header({
+  bgColor = "bg-white/80",
+}: { bgColor?: string } = {}) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
@@ -25,12 +27,16 @@ export default function Header({ bgColor = "bg-white/80" }: { bgColor?: string }
   }, []);
 
   // close on route change
-  useEffect(() => { setIsMenuOpen(false); }, [pathname]);
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [pathname]);
 
   // lock body scroll when menu open
   useEffect(() => {
     document.body.style.overflow = isMenuOpen ? "hidden" : "";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, [isMenuOpen]);
 
   return (
@@ -53,20 +59,26 @@ export default function Header({ bgColor = "bg-white/80" }: { bgColor?: string }
 
             {/* Desktop nav */}
             <nav className="hidden md:flex items-center space-x-7 text-sm font-medium uppercase tracking-wider text-stone-600">
-              {NAV_LINKS.filter(l => l.href !== "/").map(({ href, label }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className={`hover:text-orange-600 transition-colors ${pathname === href ? "text-orange-600" : ""}`}
-                >
-                  {label}
-                </Link>
-              ))}
+              {NAV_LINKS.filter((l) => l.href !== "/").map(
+                ({ href, label }) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={`hover:text-orange-600 transition-colors ${pathname === href ? "text-orange-600" : ""}`}
+                  >
+                    {label}
+                  </Link>
+                ),
+              )}
             </nav>
 
             {/* Right side */}
             <div className="flex items-center gap-2">
-              <Link href="/recipes" className="p-2 text-stone-500 hover:text-orange-600 transition-colors" aria-label="Search">
+              <Link
+                href="/recipes"
+                className="p-2 text-stone-500 hover:text-orange-600 transition-colors"
+                aria-label="Search"
+              >
                 <Search size={20} />
               </Link>
               <button
@@ -84,7 +96,9 @@ export default function Header({ bgColor = "bg-white/80" }: { bgColor?: string }
       {/* Full-screen mobile menu — rendered as sibling to avoid stacking context issues */}
       <div
         className={`fixed inset-0 z-[60] bg-white flex flex-col md:hidden transition-all duration-300 ease-in-out ${
-          isMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          isMenuOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
         }`}
       >
         {/* Top bar inside the overlay */}
@@ -111,7 +125,9 @@ export default function Header({ bgColor = "bg-white/80" }: { bgColor?: string }
               href={href}
               onClick={() => setIsMenuOpen(false)}
               className={`flex items-center justify-between py-4 text-2xl font-serif font-bold border-b border-stone-50 transition-colors ${
-                pathname === href ? "text-orange-600" : "text-stone-900 hover:text-orange-600"
+                pathname === href
+                  ? "text-orange-600"
+                  : "text-stone-900 hover:text-orange-600"
               }`}
             >
               {label}
@@ -122,21 +138,27 @@ export default function Header({ bgColor = "bg-white/80" }: { bgColor?: string }
 
         {/* Footer block */}
         <div className="shrink-0 px-8 py-8 border-t border-stone-100 bg-stone-50">
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 mb-4">Our Author</p>
+          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-stone-400 mb-4">
+            Our Author
+          </p>
           <Link
             href="/author"
             onClick={() => setIsMenuOpen(false)}
             className="flex items-center gap-3 group"
           >
             <img
-              src="/author_elena_rossi.png"
+              src="/author_elena_rossi_64x64px.png"
               alt="Elena Rossi"
               loading="lazy"
               className="w-10 h-10 rounded-full object-cover border-2 border-white shadow"
             />
             <div>
-              <p className="text-sm font-bold text-stone-900 font-serif italic group-hover:text-orange-600 transition-colors">Elena Rossi</p>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400">Culinary Director</p>
+              <p className="text-sm font-bold text-stone-900 font-serif italic group-hover:text-orange-600 transition-colors">
+                Elena Rossi
+              </p>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-stone-400">
+                Culinary Director
+              </p>
             </div>
           </Link>
         </div>

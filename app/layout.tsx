@@ -20,6 +20,7 @@ export const metadata: Metadata = {
 };
 
 import CookieBanner from "@/components/CookieBanner";
+import NextTopLoader from "nextjs-toploader";
 
 export default function RootLayout({
   children,
@@ -32,6 +33,17 @@ export default function RootLayout({
       className={`${inter.variable} ${playfair.variable} font-sans h-full antialiased text-stone-800 bg-white`}
     >
       <body className="min-h-full flex flex-col">
+        <NextTopLoader
+          color="#ea580c"
+          initialPosition={0.08}
+          crawlSpeed={200}
+          height={3}
+          crawl={true}
+          showSpinner={false}
+          easing="ease"
+          speed={200}
+          shadow="0 0 10px #ea580c,0 0 5px #ea580c"
+        />
         {children}
         <CookieBanner />
         <Script
