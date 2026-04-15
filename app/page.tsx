@@ -28,7 +28,7 @@ async function getHomePageData() {
       `SELECT r.id, r.title, r.slug, r.description, ri.hero_wide, r.category, r.created_at
        FROM recipes r
        LEFT JOIN recipe_images ri ON r.id = ri.recipe_id
-       ORDER BY RANDOM() LIMIT 1`,
+       ORDER BY r.created_at DESC LIMIT 1`,
     );
     const featured = featuredRows[0];
 
@@ -38,7 +38,7 @@ async function getHomePageData() {
       slug: string;
       created_at: string;
     }>(
-      `SELECT id, title, slug, created_at FROM recipes WHERE id != ? ORDER BY RANDOM() LIMIT 5`,
+      `SELECT id, title, slug, created_at FROM recipes WHERE id != ? ORDER BY created_at DESC LIMIT 5`,
       [featured?.id || -1],
     );
 

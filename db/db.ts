@@ -12,7 +12,7 @@ export async function queryD1<T = Record<string, unknown>>(
 ): Promise<T[]> {
   // getCloudflareContext() handles both local dev (via @opennextjs/cloudflare/dev)
   // and production environments.
-  const { env } = await getCloudflareContext();
+  const { env } = await getCloudflareContext({ async: true });
   const db = env.DB_RECIPES;
 
   if (!db) {
