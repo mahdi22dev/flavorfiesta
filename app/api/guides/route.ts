@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
 
     let query = `
       SELECT p.id, p.title, p.slug, p.description, p.cover_image as cover_image, p.category, 
-             ri.hero_wide as hero_wide
+             p.created_at, ri.hero_wide as hero_wide
       FROM pillars p
       LEFT JOIN recipe_images ri ON p.id = ri.pillar_id AND ri.recipe_id IS NULL
       WHERE 1=1
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
       params.push(category);
     }
 
-    query += " ORDER BY p.created_at DESC";
+    query += " GROUP BY p.id ORDER BY p.created_at DESC";
 
     const rawData = await queryD1<any>(query, params);
 

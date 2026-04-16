@@ -54,12 +54,14 @@ export async function GET(request: NextRequest) {
       prepTime: string;
       cookTime: string;
       totalTime: string;
+      created_at: string;
     }>(
-      `SELECT r.id, r.title, r.slug, r.description, MAX(ri.hero_wide) as hero_wide, r.category, r.servings, r.prep_time as prepTime, r.cook_time as cookTime, r.total_time as totalTime
+      `SELECT r.id, r.title, r.slug, r.description, MAX(ri.hero_wide) as hero_wide, r.category, r.servings, r.prep_time as prepTime, r.cook_time as cookTime, r.total_time as totalTime, r.created_at
        FROM recipes r
        LEFT JOIN recipe_images ri ON r.id = ri.recipe_id
        ${where} 
        GROUP BY r.id
+       ORDER BY r.created_at DESC
        LIMIT ? OFFSET ?`,
       [...params, limit, offset],
     );
