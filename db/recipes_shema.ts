@@ -89,6 +89,23 @@ export const newsletter = sqliteTable("newsletter", {
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
+// 5. Comments Table — stores user comments per recipe (keyed by recipe slug)
+export const comments = sqliteTable("comments", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  // Link to the recipe by slug (avoids joins when displaying on recipe pages)
+  recipeSlug: text("recipe_slug").notNull(),
+  // Optionally also store the numeric recipe id for integrity
+  recipeId: integer("recipe_id").references(() => recipes.id),
+  // Author info
+  authorName: text("author_name").notNull(),
+  authorEmail: text("author_email"), // optional, never exposed publicly
+  // Content
+  body: text("body").notNull(),
+  // Moderation: only approved comments are shown publicly
+  approved: integer("approved", { mode: "boolean" }).default(false),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+});
+
 // export const recipes = sqliteTable("recipes", {
 //   id: integer("id").primaryKey({ autoIncrement: true }),
 //   transformedCoverImage: text("transformed_cover_image"),

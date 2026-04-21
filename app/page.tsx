@@ -45,11 +45,13 @@ async function getHomePageData() {
     // Fetch up to 4 recipes per featured category in parallel with random offsets
     const categoryRecipes = await Promise.all(
       FEATURED_CATEGORIES.map(async ({ key }) => {
+        // Capitalize first letter to match how categories are stored (e.g. "Beef", "Pasta")
+        const categoryParam = `%${key.charAt(0).toUpperCase() + key.slice(1)}%`;
         try {
           // Get total count for this category to calculate a valid random offset
           const countRows = await queryD1<{ count: number }>(
-            `SELECT COUNT(*) as count FROM recipes WHERE LOWER(category) LIKE LOWER(?)`,
-            [`%${key}%`],
+            `SELECT COUNT(*) as count FROM recipes WHERE category LIKE ?`,
+            [categoryParam],
           );
           const totalCount = countRows[0]?.count || 0;
           const randomOffset =
@@ -67,9 +69,9 @@ async function getHomePageData() {
             `SELECT r.id, r.title, r.slug, r.description, ri.hero_wide, r.category, r.created_at
              FROM recipes r
              LEFT JOIN recipe_images ri ON r.id = ri.recipe_id
-             WHERE LOWER(r.category) LIKE LOWER(?)
+             WHERE r.category LIKE ?
              LIMIT 4 OFFSET ?`,
-            [`%${key}%`, randomOffset],
+            [categoryParam, randomOffset],
           );
         } catch (err) {
           console.error(`Error fetching category ${key}:`, err);

@@ -265,7 +265,7 @@ export default async function RecipePost({
 
         {/* Comments */}
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
-          <CommentsSection />
+          <CommentsSection slug={slug} />
         </div>
       </main>
       <Footer />
