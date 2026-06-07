@@ -1,17 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { queryD1 } from "@/db/db";
-import { ASSETS_CDN } from "@/lib/constante";
+import { cdnUrl } from "@/lib/constante";
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search") || "";
     const category = searchParams.get("category") || "";
-
-    const cdnUrl = (key: string | null | undefined) => {
-      if (!key) return null;
-      return `${ASSETS_CDN}/${key.replace(/^\//, "")}`;
-    };
 
     let query = `
       SELECT p.id, p.title, p.slug, p.description, p.cover_image as cover_image, p.category, 

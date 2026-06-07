@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Inter, Playfair_Display, Geist } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 
@@ -21,6 +21,10 @@ export const metadata: Metadata = {
 
 import CookieBanner from "@/components/CookieBanner";
 import NextTopLoader from "nextjs-toploader";
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+
 
 export default function RootLayout({
   children,
@@ -30,7 +34,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${playfair.variable} font-sans h-full antialiased text-stone-800 bg-white`}
+      className={cn("h-full", "antialiased", "text-stone-800", "bg-white", inter.variable, playfair.variable, "font-sans", geist.variable)}
     >
       <body className="min-h-full flex flex-col">
         <NextTopLoader

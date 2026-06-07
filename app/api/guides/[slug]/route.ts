@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { queryD1 } from "@/db/db";
-import { ASSETS_CDN } from "@/lib/constante";
-
-function cdnUrl(key: string | null | undefined): string | null {
-  if (!key) return null;
-  return `${ASSETS_CDN}/${key.replace(/^\//, "")}`;
-}
+import { cdnUrl, ASSETS_CDN } from "@/lib/constante";
 
 async function fetchJsonFromCdn(slug: string): Promise<any> {
   // Strip any existing prefixes (like recipes/ or pillar/) from the slug before building the CDN path
