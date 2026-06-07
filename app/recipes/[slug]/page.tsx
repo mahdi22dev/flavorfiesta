@@ -10,8 +10,8 @@ import FloatingJumpButton from "../../../components/FloatingJumpButton";
 import { SuggestedPosts } from "@/components/SuggestedPosts";
 import ShareButtons from "@/components/ShareButtons";
 import CommentsSection from "@/components/CommentsSection";
+import { ASSETS_CDN } from "@/lib/constante";
 
-const ASSETS_CDN = "https://assets.shortinx.xyz";
 function cdnUrl(key: string | null | undefined): string | null {
   if (!key) return null;
   return `${ASSETS_CDN}/${key.replace(/^\//, "")}`;
