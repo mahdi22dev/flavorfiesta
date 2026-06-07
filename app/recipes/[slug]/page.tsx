@@ -133,6 +133,7 @@ export default async function RecipePost({
       : [],
   };
 
+  console.log(jsonLd);
   return (
     <div className="min-h-screen flex flex-col">
       <script

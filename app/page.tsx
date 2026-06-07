@@ -4,15 +4,9 @@ import Link from "next/link";
 import { queryD1 } from "@/db/db";
 import { ChevronRight } from "lucide-react";
 import CategorySection from "../components/section/CategorySection";
-import { FEATURED_CATEGORIES } from "@/lib/constante";
+import { FEATURED_CATEGORIES, cdnUrl } from "@/lib/constante";
 
 export const dynamic = "force-dynamic";
-
-const ASSETS_CDN = "https://assets.shortinx.xyz";
-function cdnUrl(key: string | null | undefined): string | null {
-  if (!key) return null;
-  return `${ASSETS_CDN}/${key.replace(/^\//, "")}`;
-}
 
 async function getHomePageData() {
   try {

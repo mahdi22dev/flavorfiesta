@@ -1,4 +1,12 @@
 // Section icons as inline SVGs (unique per category)
+
+export const ASSETS_CDN = "https://pub-d73aa2805a53409c9690107167990753.r2.dev";
+
+export function cdnUrl(key: string | null | undefined): string | null {
+  if (!key) return null;
+  return `${ASSETS_CDN}/${key.replace(/^\//, "")}`;
+}
+
 export function ChickenIcon() {
   return (
     <svg

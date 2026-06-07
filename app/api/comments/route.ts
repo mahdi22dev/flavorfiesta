@@ -9,7 +9,10 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const slug = searchParams.get("slug");
   const page = Math.max(1, parseInt(searchParams.get("page") || "1"));
-  const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "20")));
+  const limit = Math.min(
+    50,
+    Math.max(1, parseInt(searchParams.get("limit") || "20")),
+  );
   const offset = (page - 1) * limit;
 
   if (!slug) {
@@ -135,10 +138,7 @@ export async function POST(request: NextRequest) {
     );
 
     if (!recipeRows.length) {
-      return NextResponse.json(
-        { error: "Recipe not found." },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Recipe not found." }, { status: 404 });
     }
 
     const recipeId = recipeRows[0].id;
@@ -195,40 +195,50 @@ export async function POST(request: NextRequest) {
 
 // ---------------------------------------------------------------------------
 // DELETE /api/comments?id=<comment-id>
-// Hard-deletes a comment by id (admin use — add auth middleware in production).
+// Hard-deletes a comment by id (ADMIN-ONLY)
+//
+// WARNING:
+// This endpoint performs an irreversible delete of a comment. It is intended
+// for administrative use only and MUST be protected before production use.
+// For now this file only documents the risk and does NOT change behavior.
+// Add protection by verifying request headers/cookies here (or using a
+// middleware) before executing the DELETE query.
 // ---------------------------------------------------------------------------
-export async function DELETE(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const id = searchParams.get("id");
+// export async function DELETE(request: NextRequest) {
+//   const { searchParams } = new URL(request.url);
+//   const id = searchParams.get("id");
 
-  if (!id || isNaN(Number(id))) {
-    return NextResponse.json(
-      { error: "Query parameter 'id' must be a valid number." },
-      { status: 400 },
-    );
-  }
+//   if (!id || isNaN(Number(id))) {
+//     return NextResponse.json(
+//       { error: "Query parameter 'id' must be a valid number." },
+//       { status: 400 },
+//     );
+//   }
 
-  try {
-    const existing = await queryD1<{ id: number }>(
-      "SELECT id FROM comments WHERE id = ? LIMIT 1",
-      [Number(id)],
-    );
+//   try {
+//     const existing = await queryD1<{ id: number }>(
+//       "SELECT id FROM comments WHERE id = ? LIMIT 1",
+//       [Number(id)],
+//     );
 
-    if (!existing.length) {
-      return NextResponse.json(
-        { error: "Comment not found." },
-        { status: 404 },
-      );
-    }
+//     if (!existing.length) {
+//       return NextResponse.json(
+//         { error: "Comment not found." },
+//         { status: 404 },
+//       );
+//     }
 
-    await queryD1("DELETE FROM comments WHERE id = ?", [Number(id)]);
+//     // DANGEROUS: hard delete. Ensure the request is authorized before
+//     // calling this in production. Consider soft-deletes (approved = 0) or
+//     // logging the deletion for audit trail.
+//     await queryD1("DELETE FROM comments WHERE id = ?", [Number(id)]);
 
-    return NextResponse.json({ message: "Comment deleted." });
-  } catch (error) {
-    console.error("[comments DELETE] error:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 },
-    );
-  }
-}
+//     return NextResponse.json({ message: "Comment deleted." });
+//   } catch (error) {
+//     console.error("[comments DELETE] error:", error);
+//     return NextResponse.json(
+//       { error: "Internal Server Error" },
+//       { status: 500 },
+//     );
+//   }
+// }

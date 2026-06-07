@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { queryD1 } from "@/db/db";
-
-const ASSETS_CDN = "https://assets.shortinx.xyz";
-function cdnUrl(key: string | null | undefined): string | null {
-  if (!key) return null;
-  return `${ASSETS_CDN}/${key.replace(/^\//, "")}`;
-}
+import { cdnUrl } from "@/lib/constante";
 
 export async function GET(request: NextRequest) {
   try {

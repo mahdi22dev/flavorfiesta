@@ -18,6 +18,7 @@
 /build/
 /scripts
 /designs
+test.ts
 
 # Testing & Temporary
 /coverage/

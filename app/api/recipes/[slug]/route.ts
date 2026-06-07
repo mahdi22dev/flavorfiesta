@@ -1,13 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { queryD1 } from "@/db/db";
+import { cdnUrl, ASSETS_CDN } from "@/lib/constante";
 
 // Public CDN base URL — all R2 assets are served from here
-const ASSETS_CDN = "https://assets.shortinx.xyz";
-
-function cdnUrl(key: string | null | undefined): string | null {
-  if (!key) return null;
-  return `${ASSETS_CDN}/${key.replace(/^\//, "")}`;
-}
 
 async function fetchJsonFromCdn(key: string): Promise<any> {
   const url = `${ASSETS_CDN}/${key.replace(/^\//, "")}`;
