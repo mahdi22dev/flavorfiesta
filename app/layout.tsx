@@ -36,6 +36,13 @@ export default function RootLayout({
       lang="en"
       className={cn("h-full", "antialiased", "text-stone-800", "bg-white", inter.variable, playfair.variable, "font-sans", geist.variable)}
     >
+      <head>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6138987259124430"
+          crossOrigin="anonymous"
+        ></script>
+      </head>
       <body className="min-h-full flex flex-col">
         <NextTopLoader
           color="#ea580c"
